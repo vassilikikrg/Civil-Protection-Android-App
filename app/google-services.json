@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "509541110522",
+    "project_id": "civilprotectionapp-6bd54",
+    "storage_bucket": "civilprotectionapp-6bd54.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:509541110522:android:a0999eb04334f4eb112f43",
+        "android_client_info": {
+          "package_name": "com.karag.civilprotectionapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlwZaGqNuBYv5m5nZCfjkf8LNk3fdvRcY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
