@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="New Incident"
+        android:icon="@drawable/baseline_add_alert_24"
+        android:id="@+id/new_incident"/>
+    <item
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Add Emergency"
+        android:icon="@drawable/baseline_add_circle_outline_24"
+        android:id="@+id/add_emergency"/>
+    <item
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Stats"
+        android:icon="@drawable/baseline_query_stats_24"
+        android:id="@+id/stats"/>
+</menu>
