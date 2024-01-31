@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello_blank_fragment">Κενό fragment</string>
+    <string name="title">Τεστ τίτλος στα ελληνικά</string>
+    <string name="greek">Ελληνικά</string>
+    <string name="english">Αγγλικά</string>
+    <string name="selectLang">Επιλέξτε την γλώσσα της εφαρμογής</string>
+    <string name="add_emergency">Προσθήκη συμβάντος</string>
+    <string name="new_incident">Νέα συμβάντα</string>
+    <string name="stats">Στατιστικά</string>
+    <string name="pending_cases">" Έλεγχος Ειδοποιήσεων"</string>
+    <string name="employee">Υπάλληλος</string>
+    <string name="citizen">Πολίτης</string>
+</resources>

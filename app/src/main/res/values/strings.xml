@@ -1,5 +1,14 @@
 <resources>
-    <string name="app_name">CivilProtectionApp</string>
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="app_name" translatable="false">CivilProtectionApp</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title">App title test</string>
+    <string name="greek">Greek</string>
+    <string name="english">English</string>
+    <string name="selectLang">Select app\'s language</string>
+    <string name="add_emergency">Add emergency</string>
+    <string name="new_incident">New Alerts</string>
+    <string name="stats">Statistics</string>
+    <string name="pending_cases">Review Alerts</string>
+    <string name="employee">Employee</string>
+    <string name="citizen">Citizen</string>
 </resources>
