@@ -6,6 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".employee_menu">
 
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_layout" />
+
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="0dp"
