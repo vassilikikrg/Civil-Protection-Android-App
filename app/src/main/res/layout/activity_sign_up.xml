@@ -98,6 +98,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/usernameTextInputLayout"
         android:layout_marginTop="16dp"
+        android:minHeight="48dp"
         android:entries="@array/roles_array"/>
 
     <Button

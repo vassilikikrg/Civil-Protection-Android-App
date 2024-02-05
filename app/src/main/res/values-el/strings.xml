@@ -11,4 +11,7 @@
     <string name="pending_cases">" Έλεγχος Ειδοποιήσεων"</string>
     <string name="employee">Υπάλληλος</string>
     <string name="citizen">Πολίτης</string>
+    <string name="add_emergency_title">Αναφορά έκτακτης ανάγκης</string>
+    <string name="description_emergency">Περιγράψτε την κατάσταση</string>
+    <string name="report_button">Αναφορά</string>
 </resources>

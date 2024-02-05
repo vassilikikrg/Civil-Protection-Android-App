@@ -1,16 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AddEmergencyFragment">
 
     <!-- TODO: Update blank fragment layout -->
+
     <TextView
+        android:id="@+id/add_emergency_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add code for add emergency"
-        android:textSize="26dp"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:text="@string/add_emergency_title"
+        android:textSize="26sp" />
+
+    <ImageView
+        android:id="@+id/imageEmergency"
+        android:layout_width="303dp"
+        android:layout_height="216dp"
+        android:layout_gravity="center_horizontal"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/fire_in_a_burning_house"
+        android:layout_below="@+id/add_emergency_title"
+        android:layout_marginTop="80dp"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/selectImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageEmergency"
+        android:layout_gravity="right"
+        android:layout_marginTop="280dp"
+        android:layout_marginEnd="60dp"
+        android:clickable="true"
+        android:src="@drawable/baseline_add_a_photo_24"
+        app:backgroundTint="@color/colorPrimary" />
+    <Spinner
+        android:id="@+id/spinner1"
+        android:layout_width="308dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/selectImageButton"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="350dp"
+        android:minHeight="48dp"
+        android:spinnerMode="dropdown" />
+
+    <EditText
+
+        android:id="@+id/editTextDescription"
+        android:layout_width="308dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/spinner1"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="420dp"
+        android:ems="10"
+        android:hint="@string/description_emergency"
+        android:inputType="textMultiLine"
+        android:minHeight="100dp"
+        android:scrollbars="vertical"
+        android:scrollHorizontally="false" />
+
+    <Button
+        android:id="@+id/buttonReport"
+        android:layout_width="308dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editTextDescription"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="600dp"
+        android:text="@string/report_button" />
+
 
 </FrameLayout>

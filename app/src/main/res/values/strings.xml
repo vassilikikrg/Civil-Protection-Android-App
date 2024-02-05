@@ -11,4 +11,7 @@
     <string name="pending_cases">Review Alerts</string>
     <string name="employee">Employee</string>
     <string name="citizen">Citizen</string>
+    <string name="add_emergency_title">Report an emergency</string>
+    <string name="description_emergency">Describe the emergency</string>
+    <string name="report_button">Report</string>
 </resources>
