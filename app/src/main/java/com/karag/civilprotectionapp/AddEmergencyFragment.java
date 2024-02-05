@@ -24,12 +24,18 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -40,7 +46,10 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class AddEmergencyFragment extends Fragment {
 
@@ -48,7 +57,7 @@ public class AddEmergencyFragment extends Fragment {
     FirebaseStorage storage;
     FirebaseAuth auth;
     LocationManager locationManager;
-
+    private FusedLocationProviderClient fusedLocationClient;
     EditText editTextDescription;
     public ImageView imageEmergency;
     private ActivityResultLauncher<PickVisualMediaRequest> launcher;
@@ -57,7 +66,7 @@ public class AddEmergencyFragment extends Fragment {
     private Spinner spinner;
     private ArrayAdapter<String> spinnerArrayAdapter;
     private FirebaseFirestore db;
-    Uri imageUri;
+    Uri imageUri=null;
 
     public AddEmergencyFragment() {
         // Required empty public constructor
@@ -71,6 +80,7 @@ public class AddEmergencyFragment extends Fragment {
         launcher = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(),
                 uri -> handleImageSelection(uri));
         locationManager = (LocationManager) requireContext().getSystemService(LOCATION_SERVICE);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
     }
 
     @Override
@@ -92,7 +102,7 @@ public class AddEmergencyFragment extends Fragment {
         //set onClickListener for the selectImagebtn button
         selectImagebtn.setOnClickListener(v -> launchImagePicker());
         //set onClickListener for the reportBtn button
-        reportBtn.setOnClickListener(v -> uploadImage());
+        reportBtn.setOnClickListener(v -> uploadIncident());
         //load emergency types into the spinner
         loadTypeEmergency(new EmergencyCallback() {
             @Override
@@ -152,16 +162,16 @@ public class AddEmergencyFragment extends Fragment {
                     }
                 });
     }
-    private void uploadImage(){
-        SimpleDateFormat formatter=new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-        Date dateNow= new Date();
-        String filename= formatter.format(dateNow);
+    private String uploadImage(Date date){
+        SimpleDateFormat formatter=new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
+        String filename= formatter.format(date);
         String uid=auth.getCurrentUser().getUid();
         StorageReference ref=storage.getReference(uid+"/"+filename);
         ref.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
         imageEmergency.setImageURI(null);
         imageEmergency.setBackgroundResource(R.drawable.fire_in_a_burning_house);
         });
+        return filename;
     }
     private void uploadIncident(){
         // Check if permission for location is not granted
@@ -171,5 +181,49 @@ public class AddEmergencyFragment extends Fragment {
             requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 111);
             return;
         }
+
+        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+            // Got last known location. In some rare situations this can be null.
+            if (location != null) {
+                // Logic to handle location object
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                String emergencyType = spinner.getSelectedItem().toString();
+                String description = editTextDescription.getText().toString();
+                Date dateNow= new Date();
+                if (imageUri!=null){
+                    // Upload the image to Firebase Storage
+                    String imageFilename=uploadImage(dateNow);
+                    // Upload the incident to Firebase with location information
+                    uploadIncidentToFirebase(emergencyType, description, dateNow, latitude, longitude,imageFilename);
+                }
+                else{
+                    // Upload the incident to Firebase with location information and without image path
+                    uploadIncidentToFirebase(emergencyType, description, dateNow, latitude, longitude,"");
+                }
+            }
+            else {
+                Toast.makeText(requireContext(), "Unable to retrieve location.Please give the related permission to the app", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+    private void uploadIncidentToFirebase(String emergencyType, String description, Date dateTime, double latitude, double longitude,String imageFilename) {
+        Map<String, Object> incident = new HashMap<>();
+        incident.put("emergencyType", emergencyType);
+        incident.put("description", description);
+        incident.put("dateTime", dateTime);
+        incident.put("latitude", latitude);
+        incident.put("longitude", longitude);
+        incident.put("imageFilename",imageFilename);
+
+        db.collection("incidents")
+                .add(incident)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(requireContext(),"Incident reported successfully.",Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());})
+                .addOnFailureListener(e -> {
+                    Toast.makeText(requireContext(),"Failed to report incident",Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Error adding document", e);});
+    }
+
 }
