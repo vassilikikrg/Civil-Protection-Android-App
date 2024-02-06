@@ -14,4 +14,5 @@
     <string name="add_emergency_title">Αναφορά έκτακτης ανάγκης</string>
     <string name="description_emergency">Περιγράψτε την κατάσταση</string>
     <string name="report_button">Αναφορά</string>
+    <string name="emergencyTypeQuestion">Τι είδους έκτακτη ανάγκη αντιμετωπίζετε?</string>
 </resources>

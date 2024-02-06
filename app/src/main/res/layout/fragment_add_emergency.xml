@@ -42,6 +42,12 @@
             android:src="@drawable/baseline_add_a_photo_24"
             app:backgroundTint="@color/colorPrimary" />
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/emergencyTypeQuestion" />
+
         <Spinner
             android:id="@+id/spinner1"
             android:layout_width="match_parent"
@@ -75,6 +81,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/report_button" />
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:max="100"
+            android:visibility="gone"
+ />
 
     </LinearLayout>
 </ScrollView>

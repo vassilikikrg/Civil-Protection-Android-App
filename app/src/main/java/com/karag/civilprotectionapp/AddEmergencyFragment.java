@@ -4,6 +4,7 @@ import static android.content.Context.LOCATION_SERVICE;
 
 import static androidx.core.content.ContextCompat.getSystemService;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -19,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
@@ -56,7 +58,6 @@ public class AddEmergencyFragment extends Fragment {
     private static final String TAG = "AddEmergencyFragment";
     FirebaseStorage storage;
     FirebaseAuth auth;
-    LocationManager locationManager;
     private FusedLocationProviderClient fusedLocationClient;
     EditText editTextDescription;
     public ImageView imageEmergency;
@@ -67,6 +68,7 @@ public class AddEmergencyFragment extends Fragment {
     private ArrayAdapter<String> spinnerArrayAdapter;
     private FirebaseFirestore db;
     Uri imageUri=null;
+    ProgressBar progressBar;
 
     public AddEmergencyFragment() {
         // Required empty public constructor
@@ -79,7 +81,6 @@ public class AddEmergencyFragment extends Fragment {
         // Initialize the launcher for photo picking
         launcher = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(),
                 uri -> handleImageSelection(uri));
-        locationManager = (LocationManager) requireContext().getSystemService(LOCATION_SERVICE);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
     }
 
@@ -93,6 +94,8 @@ public class AddEmergencyFragment extends Fragment {
         spinner = view.findViewById(R.id.spinner1);
         reportBtn= view.findViewById(R.id.buttonReport);
         editTextDescription=view.findViewById(R.id.editTextDescription);
+        progressBar = view.findViewById(R.id.progressBar);
+
         //initialize the spinnerArray and spinnerArrayAdapter
         List<String> spinnerArray = new ArrayList<>();
         spinnerArrayAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, spinnerArray);
@@ -163,14 +166,28 @@ public class AddEmergencyFragment extends Fragment {
                 });
     }
     private String uploadImage(Date date){
+        // Show progress bar
+        progressBar.setVisibility(View.VISIBLE);
         SimpleDateFormat formatter=new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
         String filename= formatter.format(date);
         String uid=auth.getCurrentUser().getUid();
         StorageReference ref=storage.getReference(uid+"/"+filename);
-        ref.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
-        imageEmergency.setImageURI(null);
-        imageEmergency.setBackgroundResource(R.drawable.fire_in_a_burning_house);
-        });
+        ref.putFile(imageUri)
+                .addOnProgressListener(taskSnapshot -> {
+                    // Calculate progress percentage
+                    double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                    progressBar.setProgress((int) progress);
+                })
+                .addOnSuccessListener(taskSnapshot -> {
+                    // Image upload success
+                    imageEmergency.setImageURI(null);
+                    imageEmergency.setBackgroundResource(R.drawable.incident);
+                    progressBar.setVisibility(View.GONE);
+                })
+                .addOnFailureListener(e -> {
+                    // Image upload failure
+                    progressBar.setVisibility(View.GONE); // Hide progress bar
+                });
         return filename;
     }
     private void uploadIncident(){
@@ -181,7 +198,7 @@ public class AddEmergencyFragment extends Fragment {
             requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 111);
             return;
         }
-
+        progressBar.setVisibility(View.VISIBLE);
         fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
             // Got last known location. In some rare situations this can be null.
             if (location != null) {
@@ -191,15 +208,16 @@ public class AddEmergencyFragment extends Fragment {
                 String emergencyType = spinner.getSelectedItem().toString();
                 String description = editTextDescription.getText().toString();
                 Date dateNow= new Date();
+                String userId=auth.getCurrentUser().getUid();
                 if (imageUri!=null){
                     // Upload the image to Firebase Storage
                     String imageFilename=uploadImage(dateNow);
                     // Upload the incident to Firebase with location information
-                    uploadIncidentToFirebase(emergencyType, description, dateNow, latitude, longitude,imageFilename);
+                    uploadIncidentToFirebase(emergencyType, description, dateNow, latitude, longitude,imageFilename,userId);
                 }
                 else{
                     // Upload the incident to Firebase with location information and without image path
-                    uploadIncidentToFirebase(emergencyType, description, dateNow, latitude, longitude,"");
+                    uploadIncidentToFirebase(emergencyType, description, dateNow, latitude, longitude,"",userId);
                 }
             }
             else {
@@ -207,7 +225,7 @@ public class AddEmergencyFragment extends Fragment {
             }
         });
     }
-    private void uploadIncidentToFirebase(String emergencyType, String description, Date dateTime, double latitude, double longitude,String imageFilename) {
+    private void uploadIncidentToFirebase(String emergencyType, String description, Date dateTime, double latitude, double longitude,String imageFilename,String userId) {
         Map<String, Object> incident = new HashMap<>();
         incident.put("emergencyType", emergencyType);
         incident.put("description", description);
@@ -215,6 +233,9 @@ public class AddEmergencyFragment extends Fragment {
         incident.put("latitude", latitude);
         incident.put("longitude", longitude);
         incident.put("imageFilename",imageFilename);
+        incident.put("uid",userId);
+        incident.put("status","under review");
+
 
         db.collection("incidents")
                 .add(incident)
