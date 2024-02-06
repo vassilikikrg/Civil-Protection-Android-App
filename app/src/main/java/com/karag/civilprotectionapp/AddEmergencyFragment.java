@@ -218,6 +218,7 @@ public class AddEmergencyFragment extends Fragment {
                 else{
                     // Upload the incident to Firebase with location information and without image path
                     uploadIncidentToFirebase(emergencyType, description, dateNow, latitude, longitude,"",userId);
+                    progressBar.setVisibility(View.GONE);
                 }
             }
             else {

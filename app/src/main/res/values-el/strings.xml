@@ -15,4 +15,7 @@
     <string name="description_emergency">Περιγράψτε την κατάσταση</string>
     <string name="report_button">Αναφορά</string>
     <string name="emergencyTypeQuestion">Τι είδους έκτακτη ανάγκη αντιμετωπίζετε?</string>
+    <string name="stats_per_type">Πλήθος αναφορών ανά τύπο έκτακτης ανάγκης</string>
+    <string name="stats_title">Στατιστικά</string>
+    <string name="overall_stats_title">"Πλήθος περιστατικών που έχουν δηλωθεί στην εφαρμογή "</string>
 </resources>

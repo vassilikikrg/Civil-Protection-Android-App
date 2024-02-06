@@ -15,4 +15,8 @@
     <string name="description_emergency">Describe the emergency</string>
     <string name="report_button">Report</string>
     <string name="emergencyTypeQuestion">What\'s the emergency?</string>
+    <string name="stats_per_type">Number of incidents reported by emergency type</string>
+    <string name="stats_title">Statistics</string>
+    <string name="overall_stats_title" >Total number of incidents reported in the app</string>
+    <string name="stats_per_month">Number of incidents reported per month</string>
 </resources>
