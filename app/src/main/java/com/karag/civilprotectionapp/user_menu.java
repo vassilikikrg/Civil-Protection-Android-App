@@ -20,7 +20,7 @@ public class user_menu extends AppCompatActivity {
         setSupportActionBar(toolbar);
         binding = ActivityUserMenuBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        replaceFragment(new StatsFragment());
+        replaceFragment(new NewIncidentFragment());
 
         binding.bottomNavigationView.setOnItemSelectedListener(item ->{
 

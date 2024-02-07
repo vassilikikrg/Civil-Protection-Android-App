@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,15 +21,14 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private EditText emailEditText, passwordEditText;
 
+    private ImageButton btnLogout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("CivilProtection");
-
+        btnLogout = findViewById(R.id.btn_logout);
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         emailEditText = findViewById(R.id.emailEditText);
@@ -54,6 +54,14 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
             }
         });
+
+        if (auth.getCurrentUser() != null) {
+            // User is logged in, show the logout button
+            btnLogout.setVisibility(View.VISIBLE);
+        } else {
+            // User is not logged in, hide the logout button
+            btnLogout.setVisibility(View.GONE);
+        }
     }
 
     private void loginUser(String email, String password) {
@@ -97,6 +105,18 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(LoginActivity.this, employee_menu.class);
         startActivity(intent);
         finish();
+    }
+
+    public void logoutUser(View view) {
+        // Add your logout logic here, such as signing out the user, clearing session data, etc.
+        // For example, if you're using Firebase Authentication:
+        FirebaseAuth.getInstance().signOut();
+
+        // After logging out, you may want to navigate the user back to the login screen or perform any other appropriate action.
+        // For example, navigate back to the login activity:
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        this.finish(); // Optional: Finish the current activity to prevent the user from navigating back to it using the back button
     }
 }
 

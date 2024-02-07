@@ -33,9 +33,7 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("CivilProtection");
+
 
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();

@@ -21,7 +21,7 @@
             android:name=".user_menu"
             android:exported="false" />
         <activity
-            android:name=".SignUpActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".SignUpActivity" />
         <activity android:name=".MainActivity" />
     </application>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
