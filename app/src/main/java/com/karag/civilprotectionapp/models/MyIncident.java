@@ -11,6 +11,7 @@ public class MyIncident {
     private Date datetime;
     private double latitude;
     private double longitude;
+    private String status;
 
 
     public MyIncident(String id,String userId, String description, String emergencyType, String imageFilename, Date datetime,double latitude,double longitude) {
@@ -22,6 +23,18 @@ public class MyIncident {
         this.datetime = datetime;
         this.longitude = longitude;
         this.latitude = latitude;
+    }
+
+    public MyIncident(String id, String userId, String description, String emergencyType, String imageFilename, Date datetime, double latitude, double longitude, String status) {
+        this.id = id;
+        this.userId = userId;
+        this.description = description;
+        this.emergencyType = emergencyType;
+        this.imageFilename = imageFilename;
+        this.datetime = datetime;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.status = status;
     }
 
     public String getId() {
@@ -86,5 +99,13 @@ public class MyIncident {
 
     public void setLatitude(double latitude) {
         this.latitude = latitude;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

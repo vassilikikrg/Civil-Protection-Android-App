@@ -9,7 +9,7 @@
 
 
     <TextView
-        android:id="@+id/textViewTitle"
+        android:id="@+id/pendingCasesTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Pending Cases"
@@ -20,9 +20,9 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/pendingCasesRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/textViewTitle"/>
+        android:layout_below="@id/pendingCasesTitle"/>
 
 </RelativeLayout>

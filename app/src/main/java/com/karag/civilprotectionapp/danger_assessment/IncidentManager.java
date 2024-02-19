@@ -1,4 +1,4 @@
-package com.karag.civilprotectionapp.dangerassessment;
+package com.karag.civilprotectionapp.danger_assessment;
 import static android.content.ContentValues.TAG;
 
 import android.util.Log;
@@ -16,6 +16,8 @@ public class IncidentManager {
     // Thresholds for grouping incidents
     private final long TIME_THRESHOLD_MS;
     private final double DISTANCE_THRESHOLD_KM;
+    private final String emergencyType;
+    private List<MyIncident> underReviewIncidents =new ArrayList<>();
 
     // Weight for number of reports criterion
     private static final double NUM_REPORTS_WEIGHT = 0.6;
@@ -23,16 +25,18 @@ public class IncidentManager {
     // Weight for geographical proximity criterion
     private static final double PROXIMITY_WEIGHT = 0.4;
 
-    public IncidentManager(long time_threshold,double distance_threshold) {
+    public IncidentManager(long time_threshold, double distance_threshold, String emergencyType) {
         this.TIME_THRESHOLD_MS=time_threshold;
         this.DISTANCE_THRESHOLD_KM=distance_threshold;
+        this.emergencyType = emergencyType;
+
     }
 
     // Method to group incidents
-    private List<List<MyIncident>> groupIncidents(List<MyIncident> incidents) {
+    public List<List<MyIncident>> groupIncidents() {
         List<List<MyIncident>> incidentGroups = new ArrayList<>();
 
-        for (MyIncident incident : incidents) {
+        for (MyIncident incident : underReviewIncidents) {
             boolean addedToExistingGroup = false;
 
             // Check if this incident can be added to an existing group
@@ -123,14 +127,15 @@ public class IncidentManager {
     /////////////////////////////////////////
 
     // Method to assess the danger level of incidents
-    public void assessDangerLevel( List<List<MyIncident>> groupedIncidents) {
+    public List<CompositeIncident> assessDangerLevel() {
+        List<List<MyIncident>> groupedIncidents=groupIncidentReportsByEmergency();
+        Log.d(TAG,"SIZEEE"+groupedIncidents.size());
+        List<CompositeIncident> compositeIncidents=new ArrayList<>();
         for(List<MyIncident> incidentGroup:groupedIncidents){
-            int numOfReports=incidentGroup.size();
-            double averageDistance=calculateAverageDistance(incidentGroup);
-            double dangerLevel = calculateDangerLevel(numOfReports,averageDistance);
+            CompositeIncident compositeIncident=createCompositeIncident(incidentGroup);
+            compositeIncidents.add(compositeIncident);
         }
-
-        return;
+        return compositeIncidents;
     }
 
     // Method to calculate danger level based on number of incidents and proximity
@@ -157,37 +162,24 @@ public class IncidentManager {
     ////////////////////////////////
     // Firebase related functions //
     ////////////////////////////////
-    private void loadTypeEmergency() {
-        FirebaseFirestore.getInstance().collection("emergencies")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        // load all types of emergency(fire,earthquake,etc) from firebase
-                        List<String> emergenciesList = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            emergenciesList.add(document.getString("Name"));
-                        }
-                    } else {
-                        Log.w(TAG, "Error getting documents.", task.getException());
-                    }
-                });
-    }
-    private void loadIncidentReportsByEmergency(String emergencyType){
+
+    public List<List<MyIncident>> groupIncidentReportsByEmergency(){
         FirebaseFirestore.getInstance().collection("incidents")
-                .whereEqualTo("emergencyType",emergencyType)
+                .whereEqualTo("emergencyType",this.emergencyType)
                 .whereEqualTo("status","under review")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         // load all types of emergency(fire,earthquake,etc) from firebase
-                        List<MyIncident> reports = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            reports.add(documentToIncident(document));
+                            underReviewIncidents.add(documentToIncident(document));
                         }
+
                     } else {
                         Log.w(TAG, "Error getting documents.", task.getException());
                     }
                 });
+        return groupIncidents();
     }
     private MyIncident documentToIncident(QueryDocumentSnapshot document) {
         // Extract data from Firestore document and create Incident object
