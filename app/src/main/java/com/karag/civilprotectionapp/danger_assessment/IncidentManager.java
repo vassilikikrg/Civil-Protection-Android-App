@@ -6,6 +6,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -127,28 +129,58 @@ public class IncidentManager {
     /////////////////////////////////////////
 
     // Method to assess the danger level of incidents
-    public List<CompositeIncident> assessDangerLevel() {
-        List<List<MyIncident>> groupedIncidents=groupIncidentReportsByEmergency();
-        Log.d(TAG,"SIZEEE"+groupedIncidents.size());
-        List<CompositeIncident> compositeIncidents=new ArrayList<>();
-        for(List<MyIncident> incidentGroup:groupedIncidents){
-            CompositeIncident compositeIncident=createCompositeIncident(incidentGroup);
-            compositeIncidents.add(compositeIncident);
-        }
-        return compositeIncidents;
+    // Method to assess the danger level of incidents
+    public CompletableFuture<List<CompositeIncident>> assessDangerLevelAsync() {
+        return groupIncidentReportsByEmergencyAsync()
+                .thenApply(groupedIncidents -> {
+                    Log.d(TAG, "SIZEEE" + groupedIncidents.size());
+                    List<CompositeIncident> compositeIncidents = new ArrayList<>();
+                    for (List<MyIncident> incidentGroup : groupedIncidents) {
+                        CompositeIncident compositeIncident = createCompositeIncident(incidentGroup);
+                        compositeIncidents.add(compositeIncident);
+                    }
+                    return compositeIncidents;
+                })
+                .exceptionally(e -> {
+                    Log.e(TAG, "Error occurred while fetching incident reports", e);
+                    return new ArrayList<>();
+                });
     }
-
     // Method to calculate danger level based on number of incidents and proximity
     private double calculateDangerLevel(int numIncidents, double averageDistance) {
-        // Calculate danger level based on weights for number of reports and proximity
-        double dangerLevel = (NUM_REPORTS_WEIGHT * numIncidents) + (PROXIMITY_WEIGHT * (1 - averageDistance / DISTANCE_THRESHOLD_KM));
+        if (numIncidents == 1) {
+            return 1; // If there's only one incident, return 1
+        } else {
+            // Calculate danger level based on weights for number of reports and proximity
+            double dangerLevel;
+            double proximityFactor;
+            double reportFactor;
 
-        // Scale the danger level to fit within the range of 1 to 10
-        double scaledDangerLevel = 1 + (9 * dangerLevel / (NUM_REPORTS_WEIGHT + PROXIMITY_WEIGHT));
+            if (numIncidents >= 30) {
+                reportFactor = NUM_REPORTS_WEIGHT * 10; // If there are 30 or more reports, set report factor to its max value
+            } else {
+                reportFactor = NUM_REPORTS_WEIGHT * numIncidents / 3;
+            }
 
-        // Ensure the scaled danger level falls within the range of 1 to 10
-        return Math.max(1, Math.min(10, scaledDangerLevel));
+            if (averageDistance != 0) {
+                double distanceRatio = DISTANCE_THRESHOLD_KM / averageDistance;
+                if (distanceRatio > 10) {
+                    proximityFactor = PROXIMITY_WEIGHT * 10; // Set proximity factor to its max value
+                } else {
+                    proximityFactor = PROXIMITY_WEIGHT * distanceRatio;
+                }
+            } else {
+                proximityFactor = PROXIMITY_WEIGHT * 10; // If average distance is 0, set proximity factor to its max value
+            }
+
+            dangerLevel = reportFactor + proximityFactor;
+            // Ensure the danger level falls within the range of 1 to 10
+            return Math.max(1, Math.min(10, dangerLevel));
+        }
     }
+
+
+
     private CompositeIncident createCompositeIncident(List<MyIncident> incidentGroup){
         int numOfReports=incidentGroup.size();
         double averageDistance=calculateAverageDistance(incidentGroup);
@@ -163,37 +195,42 @@ public class IncidentManager {
     // Firebase related functions //
     ////////////////////////////////
 
-    public List<List<MyIncident>> groupIncidentReportsByEmergency(){
+    // Method to fetch incident reports from Firebase Firestore asynchronously
+    public CompletableFuture<List<List<MyIncident>>> groupIncidentReportsByEmergencyAsync() {
+        CompletableFuture<List<List<MyIncident>>> future = new CompletableFuture<>();
+
         FirebaseFirestore.getInstance().collection("incidents")
-                .whereEqualTo("emergencyType",this.emergencyType)
-                .whereEqualTo("status","under review")
+                .whereEqualTo("emergencyType", this.emergencyType)
+                .whereEqualTo("status", "under review")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // load all types of emergency(fire,earthquake,etc) from firebase
+                        List<List<MyIncident>> groupedIncidents = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             underReviewIncidents.add(documentToIncident(document));
                         }
-
+                        future.complete(groupIncidents());
                     } else {
                         Log.w(TAG, "Error getting documents.", task.getException());
+                        future.completeExceptionally(task.getException());
                     }
                 });
-        return groupIncidents();
+
+        return future;
     }
     private MyIncident documentToIncident(QueryDocumentSnapshot document) {
         // Extract data from Firestore document and create Incident object
         String id= document.getId();
-        String userId = document.getString("userId");
+        String userId = document.getString("uid");
         String description = document.getString("description");
         String emergencyType = document.getString("emergencyType");
         String imageFilename = document.getString("imageFilename");
-        Date datetime = document.getDate("datetime");
+        Date datetime = document.getDate("dateTime");
         double latitude = document.getDouble("latitude");
         double longitude = document.getDouble("longitude");
 
         // Create and return the Incident object
-        return new MyIncident(id,userId, description, emergencyType, imageFilename, datetime, longitude, latitude);
+        return new MyIncident(id,userId, description, emergencyType, imageFilename, datetime,latitude, longitude);
     }
     ///////////////////////////
     // Time related function //
