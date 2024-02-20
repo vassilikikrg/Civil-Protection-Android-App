@@ -16,8 +16,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.karag.civilprotectionapp.models.CompositeIncident;
 import com.karag.civilprotectionapp.danger_assessment.IncidentManager;
+import com.karag.civilprotectionapp.models.Emergency;
+import com.karag.civilprotectionapp.models.MyIncident;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -26,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 public class PendingCasesFragment extends Fragment {
     private List<CompositeIncident> allIncidents;
     private PendingCasesAdapter pendingCasesAdapter;
-    private List<String> emergenciesList = new ArrayList<>();
+    private List<Emergency> emergenciesList = new ArrayList<>();
 
     public PendingCasesFragment() {
         // Required empty public constructor
@@ -56,12 +61,12 @@ public class PendingCasesFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            emergenciesList.add(document.getString("Name"));
+                            emergenciesList.add(documentToEmergency(document));
                         }
                         CompletableFuture<Void> allIncidentsFuture = CompletableFuture.completedFuture(null);
-                        for (String emergencyName : emergenciesList) {
+                        for (Emergency emergency : emergenciesList) {
                             allIncidentsFuture = allIncidentsFuture.thenComposeAsync(
-                                    v -> fetchIncidentsForEmergency(emergencyName)
+                                    v -> fetchIncidentsForEmergency(emergency)
                             );
                         }
                         allIncidentsFuture.thenRun(() -> {
@@ -75,19 +80,38 @@ public class PendingCasesFragment extends Fragment {
                 });
     }
 
-    private CompletableFuture<Void> fetchIncidentsForEmergency(String emergencyName) {
+    private CompletableFuture<Void> fetchIncidentsForEmergency(Emergency emergency) {
         return CompletableFuture.supplyAsync(() -> {
-            IncidentManager incidentManager = new IncidentManager(360000, 1000, emergencyName);
+            IncidentManager incidentManager = new IncidentManager(emergency.timespanToMillieSeconds(), emergency.getRange(), emergency.getName());
             return incidentManager.assessDangerLevelAsync();
         }).thenAccept(incidents -> {
             try {
                 allIncidents.addAll(incidents.get());
+                Collections.sort(allIncidents, new DangerLevelComparator());//display incidents sorted by danger level
             } catch (InterruptedException | ExecutionException e) {
                 // Handle exceptions
-                Log.e(TAG, "Error occurred while fetching incidents for emergency: " + emergencyName, e);
+                Log.e(TAG, "Error occurred while fetching incidents for emergency: " + emergency.getName(), e);
             }
         });
     }
 
+    private Emergency documentToEmergency(QueryDocumentSnapshot document) {
+        // Extract data from Firestore document and create Emergency object
+        String name=document.getString("Name");
+        Log.i(TAG,name);
+        String greekName = document.getString("GreekName");
+        long timespan = document.getLong("timespan");
+        int range = ((Long) document.get("range")).intValue();
+        // Create and return the Incident object
+        return new Emergency(name,greekName,range,timespan);
+    }
+// Custom comparator for sorting by danger level in descending order
+    private static class DangerLevelComparator implements Comparator<CompositeIncident> {
+        @Override
+        public int compare(CompositeIncident incident1, CompositeIncident incident2) {
+            // Sort in descending order
+            return Double.compare(incident2.getDangerLevel(), incident1.getDangerLevel());
+        }
+    }
 
 }

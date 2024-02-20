@@ -1,26 +1,36 @@
 package com.karag.civilprotectionapp;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.karag.civilprotectionapp.models.CompositeIncident;
 import com.karag.civilprotectionapp.models.MyIncident;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapter.MyViewHolder> {
     private List<CompositeIncident> compositeIncidents;
     private Context myContext;
     private FirebaseFirestore db;
-    
+
     // Constructor
     public PendingCasesAdapter(List<CompositeIncident> compositeIncidents, Context myContext) {
         this.compositeIncidents = compositeIncidents;
@@ -63,7 +73,7 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         CompositeIncident compositeIncident = compositeIncidents.get(position);
-
+        db=FirebaseFirestore.getInstance();
         holder.bind(compositeIncident,myContext);
         // Set click listeners for buttons
         holder.checkButton.setOnClickListener(v -> onCheckButtonClick(compositeIncident));
@@ -82,10 +92,16 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
         // Modify the status of each incident
         for (MyIncident incident : incidents) {
             incident.setStatus("checked"); // Modify the status as needed
+            // Update the Firebase Firestore database with the new statuses
+            changeIncidentStatus(incident,"approved");
         }
-
-        // Update the Firebase Firestore database with the new statuses
-        // Call your method to update the database here
+        // Remove the approved composite incident from the list within a synchronized block
+        synchronized (compositeIncidents) {
+            compositeIncidents.remove(compositeIncident);
+        }
+        // Notify the adapter that the dataset has changed
+        notifyDataSetChanged();
+        uploadIncidentToFirebase(compositeIncident);
     }
 
     private void onDiscardButtonClick(CompositeIncident compositeIncident) {
@@ -95,9 +111,47 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
         // Modify the status of each incident
         for (MyIncident incident : incidents) {
             incident.setStatus("discarded"); // Modify the status as needed
+            // Update the Firebase Firestore database with the new statuses
+            changeIncidentStatus(incident,"discarded");
         }
-
-        // Update the Firebase Firestore database with the new statuses
-        // Call your method to update the database here
+        // Remove the discarded composite incident from the list within a synchronized block
+        synchronized (compositeIncidents) {
+            compositeIncidents.remove(compositeIncident);
+        }
+        // Notify the adapter that the dataset has changed
+        notifyDataSetChanged();
     }
+
+    private void uploadIncidentToFirebase(CompositeIncident compositeIncident) {
+        Map<String, Object> approvedIncident = compositeIncident.toMap();
+
+        db.collection("approved_incidents")
+                .add(approvedIncident)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(myContext,"Incident approved successfully.",Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());})
+                .addOnFailureListener(e -> {
+                    Toast.makeText(myContext,"Failed to approve incident",Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Error adding document", e);});
+    }
+    public void changeIncidentStatus(MyIncident incident,String status) {
+        // Create a map with the updated attribute and its value
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", status);
+
+        // Update the document with the new attribute value
+        db.collection("incidents")
+                .document(incident.getId())
+                .update(updates)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Document successfully updated
+                        Log.d(TAG, "Document updated successfully");
+                    } else {
+                        // Error updating document
+                        Log.w(TAG, "Error updating document", task.getException());
+                    }
+                });
+    }
+
 }

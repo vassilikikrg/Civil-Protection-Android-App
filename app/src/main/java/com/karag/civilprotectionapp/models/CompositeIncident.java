@@ -6,12 +6,16 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 
+import com.google.firebase.database.Exclude;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class CompositeIncident {
 
@@ -109,5 +113,17 @@ public class CompositeIncident {
     public String formatDateTime() {
         SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
             return outputFormat.format(this.datetime);
+    }
+    @Exclude
+    public Map<String, Object> toMap() {
+        Map<String, Object> approvedIncident = new HashMap<>();
+        approvedIncident.put("emergencyType", this.getEmergencyType());
+        approvedIncident.put("dangerLevel", this.getDangerLevel());
+        approvedIncident.put("numOfReports", this.getNumOfReports());
+        approvedIncident.put("dateTime", this.getDatetime());
+        approvedIncident.put("latitude", this.getLatitude());
+        approvedIncident.put("longitude", this.getLongitude());
+
+        return approvedIncident;
     }
 }
