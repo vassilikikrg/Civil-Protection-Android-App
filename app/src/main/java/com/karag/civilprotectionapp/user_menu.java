@@ -1,6 +1,9 @@
 package com.karag.civilprotectionapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -8,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.karag.civilprotectionapp.databinding.ActivityUserMenuBinding;
 
 public class user_menu extends AppCompatActivity {
@@ -34,6 +38,24 @@ public class user_menu extends AppCompatActivity {
 
 
             return true;
+        });
+
+        // Initialize toolbar and logout button
+        setSupportActionBar(toolbar);
+        ImageButton btnLogout = findViewById(R.id.btn_logout);
+
+        // Set onClickListener for the logout button
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Perform logout logic here, such as signing out the user
+                FirebaseAuth.getInstance().signOut();
+
+                // Navigate back to the login screen
+                Intent intent = new Intent(user_menu.this, LoginActivity.class);
+                startActivity(intent);
+                finish(); // Optional: Finish the current activity to prevent the user from navigating back to it using the back button
+            }
         });
     }
 
