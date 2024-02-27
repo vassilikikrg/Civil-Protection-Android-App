@@ -188,7 +188,7 @@ public class IncidentManager {
         double[] centerCoordinates=calculateCenter(incidentGroup);
         Date firstDateReported=findFirstReportedTime(incidentGroup);
 
-        return new CompositeIncident(incidentGroup.get(0).getEmergencyType(),firstDateReported,centerCoordinates[0],centerCoordinates[1],dangerLevel,numOfReports,incidentGroup);
+        return new CompositeIncident(incidentGroup.get(0).getEmergencyType(),firstDateReported,centerCoordinates[0],centerCoordinates[1],dangerLevel,numOfReports,DISTANCE_THRESHOLD_KM,incidentGroup);
     }
 
     ////////////////////////////////

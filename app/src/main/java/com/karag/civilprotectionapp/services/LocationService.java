@@ -28,6 +28,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.karag.civilprotectionapp.danger_assessment.IncidentManager;
+import com.karag.civilprotectionapp.models.ApprovedIncident;
 import com.karag.civilprotectionapp.models.Incident;
 import com.karag.civilprotectionapp.models.MyIncident;
 
@@ -117,10 +118,12 @@ public class LocationService extends Service implements CloseIncidentsCallback {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<MyIncident> newIncidents = new ArrayList<>();
+                        List<ApprovedIncident> newIncidents = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            MyIncident incident= IncidentManager.documentToIncident(document);
-                            if (IncidentManager.calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(), incident.getLatitude(), incident.getLongitude()) < 10) {
+                            ApprovedIncident incident= ApprovedIncident.documentToIncident(document);
+                            Double range=incident.getRange();
+                            Double maxDistance=range.isNaN()?10:incident.getRange();
+                            if (IncidentManager.calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(), incident.getLatitude(), incident.getLongitude()) < maxDistance) {
                                 if (!alreadyReported(incident.getId())) {
                                     newIncidents.add(incident);
                                     Caching.storeIncidentInCache(this,incident.getId(),dateToTimestamp(incident.getDatetime()));
@@ -138,13 +141,13 @@ public class LocationService extends Service implements CloseIncidentsCallback {
         return Caching.isIncidentInCacheAndRecent(this, incidentId);
     }
     @Override
-    public void onCloseIncidentsFound(List<MyIncident> newCloseIncidents) {
+    public void onCloseIncidentsFound(List<ApprovedIncident> newCloseIncidents) {
         if (!newCloseIncidents.isEmpty()) {
             // There are close incidents, create a notification
             if(newCloseIncidents.size()==1)
             NotificationHelper.createNotification(getApplicationContext(),"SOS! There is a "+newCloseIncidents.get(0).getEmergencyType().toLowerCase()+" near your area","Reported "+getTimeAgo(newCloseIncidents.get(0).getDatetime()));
             else{
-                for(MyIncident incident:newCloseIncidents){
+                for(ApprovedIncident incident:newCloseIncidents){
                     NotificationHelper.createNotification(getApplicationContext(),"SOS! There is a "+incident.getEmergencyType().toLowerCase()+" near your area","Reported "+getTimeAgo(incident.getDatetime()));
                 }
             }

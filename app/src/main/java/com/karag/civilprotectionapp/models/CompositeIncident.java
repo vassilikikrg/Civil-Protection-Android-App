@@ -25,16 +25,26 @@ public class CompositeIncident {
     private double longitude;
     private double dangerLevel;
     private int numOfReports;
+    private double range;
     private List<MyIncident> relatedReports;
 
-    public CompositeIncident(String emergencyType, Date datetime, double latitude, double longitude, double dangerLevel, int numOfReports, List<MyIncident> relatedReports) {
+    public CompositeIncident(String emergencyType, Date datetime, double latitude, double longitude, double dangerLevel, int numOfReports, double range, List<MyIncident> relatedReports) {
         this.emergencyType = emergencyType;
         this.datetime = datetime;
         this.latitude = latitude;
         this.longitude = longitude;
         this.dangerLevel = dangerLevel;
         this.numOfReports = numOfReports;
+        this.range = range;
         this.relatedReports = relatedReports;
+    }
+
+    public double getRange() {
+        return range;
+    }
+
+    public void setRange(double range) {
+        this.range = range;
     }
 
     public String getEmergencyType() {

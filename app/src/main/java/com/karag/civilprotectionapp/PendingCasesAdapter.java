@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.karag.civilprotectionapp.models.ApprovedIncident;
 import com.karag.civilprotectionapp.models.CompositeIncident;
 import com.karag.civilprotectionapp.models.MyIncident;
 
@@ -123,10 +124,11 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
     }
 
     private void uploadIncidentToFirebase(CompositeIncident compositeIncident) {
-        Map<String, Object> approvedIncident = compositeIncident.toMap();
+        ApprovedIncident approvedIncident=new ApprovedIncident(compositeIncident.getDangerLevel(),compositeIncident.getDatetime(),compositeIncident.getEmergencyType(),compositeIncident.getLatitude(),compositeIncident.getLongitude(),compositeIncident.getNumOfReports(),compositeIncident.getRange());
+        Map<String, Object> approvedIncidentMap =approvedIncident.toMap() ;
 
         db.collection("approved_incidents")
-                .add(approvedIncident)
+                .add(approvedIncidentMap)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(myContext,"Incident approved successfully.",Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());})
