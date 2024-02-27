@@ -122,7 +122,7 @@ public class LocationService extends Service implements CloseIncidentsCallback {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             ApprovedIncident incident= ApprovedIncident.documentToIncident(document);
                             Double range=incident.getRange();
-                            Double maxDistance=range.isNaN()?10:incident.getRange();
+                            Double maxDistance=range.isNaN()?10:incident.getRange()/2;
                             if (IncidentManager.calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(), incident.getLatitude(), incident.getLongitude()) < maxDistance) {
                                 if (!alreadyReported(incident.getId())) {
                                     newIncidents.add(incident);
