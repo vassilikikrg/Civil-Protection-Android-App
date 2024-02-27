@@ -12,12 +12,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.karag.civilprotectionapp.models.Incident;
+
 import java.util.List;
 import java.util.Map;
 

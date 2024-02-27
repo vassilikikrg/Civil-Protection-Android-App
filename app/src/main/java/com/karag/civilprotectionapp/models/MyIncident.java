@@ -1,42 +1,50 @@
-package com.karag.civilprotectionapp;
+package com.karag.civilprotectionapp.models;
 
+import java.util.Date;
 
-import com.google.firebase.Timestamp;
-
-public class Incident {
-
+public class MyIncident {
+    private String id;
     private String userId;
     private String description;
     private String emergencyType;
     private String imageFilename;
-    private String username; // Added field for username
-    private String location; // Added field for location
-    private String datetime; // Changed type to Timestamp for datetime
-
-    private double longitude;
+    private Date datetime;
     private double latitude;
+    private double longitude;
+    private String status;
 
 
-    public Incident() {
-        // Default constructor required for Firestore
-    }
-
-    public Incident(String userId, String description, String emergencyType, String imageFilename, String datetime, String location, double longitude, double latitude) {
+    public MyIncident(String id,String userId, String description, String emergencyType, String imageFilename, Date datetime,double latitude,double longitude) {
+        this.id=id;
         this.userId = userId;
         this.description = description;
         this.emergencyType = emergencyType;
         this.imageFilename = imageFilename;
         this.datetime = datetime;
-        this.location = location;
-        this.latitude = latitude;
         this.longitude = longitude;
-
+        this.latitude = latitude;
     }
 
+    public MyIncident(String id, String userId, String description, String emergencyType, String imageFilename, Date datetime, double latitude, double longitude, String status) {
+        this.id = id;
+        this.userId = userId;
+        this.description = description;
+        this.emergencyType = emergencyType;
+        this.imageFilename = imageFilename;
+        this.datetime = datetime;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.status = status;
+    }
 
+    public String getId() {
+        return id;
+    }
 
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    // Getters and setters
     public String getUserId() {
         return userId;
     }
@@ -69,20 +77,12 @@ public class Incident {
         this.imageFilename = imageFilename;
     }
 
-    public String getDatetime() {
+    public Date getDatetime() {
         return datetime;
     }
 
-    public void setDatetime(String datetime) {
+    public void setDatetime(Date datetime) {
         this.datetime = datetime;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
     }
 
     public double getLongitude() {
@@ -99,5 +99,13 @@ public class Incident {
 
     public void setLatitude(double latitude) {
         this.latitude = latitude;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
