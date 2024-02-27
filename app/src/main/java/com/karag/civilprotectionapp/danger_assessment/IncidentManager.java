@@ -75,7 +75,7 @@ public class IncidentManager {
     ///////////////////////////////
 
     // Method to calculate distance between two points using Haversine formula
-    private static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         final double R = 6371; // Radius of the earth
 
         double latDistance = Math.toRadians(lat2 - lat1);
@@ -188,7 +188,7 @@ public class IncidentManager {
         double[] centerCoordinates=calculateCenter(incidentGroup);
         Date firstDateReported=findFirstReportedTime(incidentGroup);
 
-        return new CompositeIncident(incidentGroup.get(0).getEmergencyType(),firstDateReported,centerCoordinates[0],centerCoordinates[1],dangerLevel,numOfReports,incidentGroup);
+        return new CompositeIncident(incidentGroup.get(0).getEmergencyType(),firstDateReported,centerCoordinates[0],centerCoordinates[1],dangerLevel,numOfReports,DISTANCE_THRESHOLD_KM,incidentGroup);
     }
 
     ////////////////////////////////
@@ -218,7 +218,7 @@ public class IncidentManager {
 
         return future;
     }
-    private MyIncident documentToIncident(QueryDocumentSnapshot document) {
+    public static MyIncident documentToIncident(QueryDocumentSnapshot document) {
         // Extract data from Firestore document and create Incident object
         String id= document.getId();
         String userId = document.getString("uid");
