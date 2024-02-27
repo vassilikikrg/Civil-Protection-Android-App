@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.Priority;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.karag.civilprotectionapp.danger_assessment.IncidentManager;
@@ -40,6 +41,7 @@ public class LocationService extends Service implements CloseIncidentsCallback {
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
     private Location lastLocation;
+
 
     @Override
     public void onCreate() {
@@ -121,6 +123,7 @@ public class LocationService extends Service implements CloseIncidentsCallback {
                             if (IncidentManager.calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(), incident.getLatitude(), incident.getLongitude()) < 10) {
                                 if (!alreadyReported(incident.getId())) {
                                     newIncidents.add(incident);
+                                    Caching.storeIncidentInCache(this,incident.getId(),dateToTimestamp(incident.getDatetime()));
                                 }
                             }
                         }
@@ -132,9 +135,7 @@ public class LocationService extends Service implements CloseIncidentsCallback {
     }
     private boolean alreadyReported(String incidentId) {
         // Check if the incident ID is already reported
-        // You may implement your logic here, such as checking a local database or cache
-        // For now, assume no incident is reported
-        return false;
+        return Caching.isIncidentInCacheAndRecent(this, incidentId);
     }
     @Override
     public void onCloseIncidentsFound(List<MyIncident> newCloseIncidents) {
@@ -147,6 +148,7 @@ public class LocationService extends Service implements CloseIncidentsCallback {
                     NotificationHelper.createNotification(getApplicationContext(),"SOS! There is a "+incident.getEmergencyType().toLowerCase()+" near your area","Reported "+getTimeAgo(incident.getDatetime()));
                 }
             }
+            Caching.removeExpiredIncidentsFromCache(this);
         }
 
     }
@@ -168,5 +170,12 @@ public class LocationService extends Service implements CloseIncidentsCallback {
         } else {
             return "just now";
         }
+    }
+
+    public static long dateToTimestamp(Date date){
+        return date.getTime();
+    }
+    public static Date timestampToDate(long timestamp){
+        return new Date(timestamp);
     }
 }
