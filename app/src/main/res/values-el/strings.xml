@@ -18,4 +18,5 @@
     <string name="stats_per_type">Πλήθος αναφορών ανά τύπο έκτακτης ανάγκης</string>
     <string name="stats_title">Στατιστικά</string>
     <string name="overall_stats_title">"Πλήθος περιστατικών που έχουν δηλωθεί στην εφαρμογή "</string>
+    <string name="stats_per_month">Πλήθος αναφορών που υποβλήθηκαν τον προηγούμενο μήνα</string>
 </resources>

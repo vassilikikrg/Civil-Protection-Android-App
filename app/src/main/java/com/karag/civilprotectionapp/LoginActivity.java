@@ -56,6 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         if (auth.getCurrentUser() != null) {
+            startMenu(auth.getCurrentUser().getUid());
             // User is logged in, show the logout button
             btnLogout.setVisibility(View.VISIBLE);
         } else {
@@ -71,23 +72,7 @@ public class LoginActivity extends AppCompatActivity {
                         // Login successful, check user role
                         String userId = auth.getCurrentUser().getUid();
 
-                        firestore.collection("users")
-                                .document(userId)
-                                .get()
-                                .addOnCompleteListener(task1 -> {
-                                    if (task1.isSuccessful()) {
-                                        DocumentSnapshot document = task1.getResult();
-                                        if (document.exists()) {
-                                            String role = document.getString("role");
-
-                                            if ("Citizen".equals(role)) {
-                                                startCitizenMenuActivity();
-                                            } else if ("Employee".equals(role)) {
-                                                startEmployeeMenuActivity();
-                                            }
-                                        }
-                                    }
-                                });
+                        startMenu(userId);
                     } else {
                         // If login fails, display a message to the user.
                         Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
@@ -95,6 +80,24 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    private void startMenu(String userId){
+        firestore.collection("users")
+                .document(userId)
+                .get()
+                .addOnCompleteListener(task1 -> {
+                    if (task1.isSuccessful()) {
+                        DocumentSnapshot document = task1.getResult();
+                        if (document.exists()) {
+                            String role = document.getString("role");
+                            if ("Citizen".equals(role)) {
+                                startCitizenMenuActivity();
+                            } else if ("Employee".equals(role)) {
+                                startEmployeeMenuActivity();
+                            }
+                        }
+                    }
+                });
+    }
     private void startCitizenMenuActivity() {
         Intent intent = new Intent(LoginActivity.this, user_menu.class);
         startActivity(intent);
