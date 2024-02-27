@@ -218,7 +218,7 @@ public class IncidentManager {
 
         return future;
     }
-    private MyIncident documentToIncident(QueryDocumentSnapshot document) {
+    public static MyIncident documentToIncident(QueryDocumentSnapshot document) {
         // Extract data from Firestore document and create Incident object
         String id= document.getId();
         String userId = document.getString("uid");

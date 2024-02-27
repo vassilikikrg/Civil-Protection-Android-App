@@ -93,7 +93,9 @@ public class NewIncidentFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Log.i(TAG,"ON STARTTT");
+        if(arePermissionsGranted(permissions)){
+            startLocationService();
+        }
     }
 
 
@@ -112,9 +114,11 @@ public class NewIncidentFragment extends Fragment {
         return false;
     }
 
-    private void startLocationService(){
-
+    private void startLocationService() {
+        Intent serviceIntent = new Intent(requireContext(), LocationService.class);
+        ContextCompat.startForegroundService(requireContext(), serviceIntent);
     }
+
 
     // Register the permissions callback, which handles the user's response to the
     // system permissions dialog. Save the return value, an instance of
