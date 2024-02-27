@@ -75,7 +75,7 @@ public class IncidentManager {
     ///////////////////////////////
 
     // Method to calculate distance between two points using Haversine formula
-    private static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         final double R = 6371; // Radius of the earth
 
         double latDistance = Math.toRadians(lat2 - lat1);
