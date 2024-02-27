@@ -44,23 +44,25 @@ public class LocationService extends Service implements CloseIncidentsCallback {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "LocationService onCreate");
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         lastLocation = null;
         createLocationRequest();
+        // Start foreground service with a notification
+        startForeground(NOTIFICATION_ID, NotificationHelper.createNotification(getApplicationContext(), "Real-time emergency alert is on", ""));
+        // Start listening for location updates
+        requestLocationUpdates();
     }
 
-    @Override
+    /*@Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "LocationService onStartCommand");
         startForeground(NOTIFICATION_ID, NotificationHelper.createNotification(getApplicationContext(), "Real-time emergency alert is on", ""));
         requestLocationUpdates();
         return START_STICKY;
-    }
+    }*/
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "LocationService onDestroy");
         stopLocationUpdates();
         super.onDestroy();
     }
@@ -74,7 +76,6 @@ public class LocationService extends Service implements CloseIncidentsCallback {
     private void createLocationRequest() {
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY,60000)
                 .setMinUpdateIntervalMillis(30000)
-                .setMinUpdateDistanceMeters(100)
                 .build();
     }
 
@@ -94,10 +95,11 @@ public class LocationService extends Service implements CloseIncidentsCallback {
     private final LocationCallback locationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
-            if (locationResult != null) {
-                Location location = locationResult.getLastLocation();
-                fetchCloseIncidents(location,LocationService.this);
+            if (locationResult == null) {
+                return;
             }
+            Location location = locationResult.getLastLocation();
+            fetchCloseIncidents(location,LocationService.this);
         }
     };
 
@@ -119,7 +121,6 @@ public class LocationService extends Service implements CloseIncidentsCallback {
                             if (IncidentManager.calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(), incident.getLatitude(), incident.getLongitude()) < 10) {
                                 if (!alreadyReported(incident.getId())) {
                                     newIncidents.add(incident);
-                                    Log.i(TAG,"NEW INCIDENT ALERT!@#%&&**^%$#%");
                                 }
                             }
                         }
@@ -140,10 +141,10 @@ public class LocationService extends Service implements CloseIncidentsCallback {
         if (!newCloseIncidents.isEmpty()) {
             // There are close incidents, create a notification
             if(newCloseIncidents.size()==1)
-            NotificationHelper.createNotification(getApplicationContext(),"There is a "+newCloseIncidents.get(0).getEmergencyType()+" near your area","Reported "+getTimeAgo(newCloseIncidents.get(0).getDatetime()));
+            NotificationHelper.createNotification(getApplicationContext(),"SOS! There is a "+newCloseIncidents.get(0).getEmergencyType().toLowerCase()+" near your area","Reported "+getTimeAgo(newCloseIncidents.get(0).getDatetime()));
             else{
                 for(MyIncident incident:newCloseIncidents){
-                    NotificationHelper.createNotification(getApplicationContext(),"There is a "+incident.getEmergencyType()+" near your area","Reported "+getTimeAgo(incident.getDatetime()));
+                    NotificationHelper.createNotification(getApplicationContext(),"SOS! There is a "+incident.getEmergencyType().toLowerCase()+" near your area","Reported "+getTimeAgo(incident.getDatetime()));
                 }
             }
         }

@@ -68,6 +68,9 @@ public class NewIncidentFragment extends Fragment {
         incidentAdapter = new IncidentAdapter(incidents, userMap);
 
         //Permission dialog
+        if(arePermissionsGranted(permissions)){
+            startLocationService();
+        }else{
         multiplePermissionsContract = new ActivityResultContracts.RequestMultiplePermissions();
         multiplePermissionLauncher = registerForActivityResult(multiplePermissionsContract, isGranted -> {
             Log.d("PERMISSIONS", "Launcher result: " + isGranted.toString());
@@ -78,6 +81,7 @@ public class NewIncidentFragment extends Fragment {
         });
 
         requestPermissions(multiplePermissionLauncher);
+        }
     }
 
     @Nullable
@@ -93,9 +97,9 @@ public class NewIncidentFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        if(arePermissionsGranted(permissions)){
+        /*if(arePermissionsGranted(permissions)){
             startLocationService();
-        }
+        }*/
     }
 
 
