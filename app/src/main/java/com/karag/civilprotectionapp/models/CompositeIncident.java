@@ -26,9 +26,10 @@ public class CompositeIncident {
     private double dangerLevel;
     private int numOfReports;
     private double range;
+    private Map<String, String> imageDescriptions; // Map to store image filenames and descriptions
     private List<MyIncident> relatedReports;
 
-    public CompositeIncident(String emergencyType, Date datetime, double latitude, double longitude, double dangerLevel, int numOfReports, double range, List<MyIncident> relatedReports) {
+    public CompositeIncident(String emergencyType, Date datetime, double latitude, double longitude, double dangerLevel, int numOfReports, double range, Map<String, String> imageDescriptions, List<MyIncident> relatedReports) {
         this.emergencyType = emergencyType;
         this.datetime = datetime;
         this.latitude = latitude;
@@ -36,7 +37,16 @@ public class CompositeIncident {
         this.dangerLevel = dangerLevel;
         this.numOfReports = numOfReports;
         this.range = range;
+        this.imageDescriptions = imageDescriptions;
         this.relatedReports = relatedReports;
+    }
+
+    public Map<String, String> getImageDescriptions() {
+        return imageDescriptions;
+    }
+
+    public void setImageDescriptions(Map<String, String> imageDescriptions) {
+        this.imageDescriptions = imageDescriptions;
     }
 
     public double getRange() {
@@ -126,14 +136,16 @@ public class CompositeIncident {
     }
     @Exclude
     public Map<String, Object> toMap() {
-        Map<String, Object> approvedIncident = new HashMap<>();
-        approvedIncident.put("emergencyType", this.getEmergencyType());
-        approvedIncident.put("dangerLevel", this.getDangerLevel());
-        approvedIncident.put("numOfReports", this.getNumOfReports());
-        approvedIncident.put("dateTime", this.getDatetime());
-        approvedIncident.put("latitude", this.getLatitude());
-        approvedIncident.put("longitude", this.getLongitude());
+        Map<String, Object> compositeIncident = new HashMap<>();
+        compositeIncident.put("emergencyType", this.getEmergencyType());
+        compositeIncident.put("dangerLevel", this.getDangerLevel());
+        compositeIncident.put("numOfReports", this.getNumOfReports());
+        compositeIncident.put("dateTime", this.getDatetime());
+        compositeIncident.put("latitude", this.getLatitude());
+        compositeIncident.put("longitude", this.getLongitude());
+        compositeIncident.put("imageDescriptions", this.getImageDescriptions()); // Add image descriptions to the map
 
-        return approvedIncident;
+        return compositeIncident;
     }
+
 }

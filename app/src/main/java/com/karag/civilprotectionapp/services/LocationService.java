@@ -27,6 +27,7 @@ import com.google.android.gms.location.Priority;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.type.DateTime;
 import com.karag.civilprotectionapp.danger_assessment.IncidentManager;
 import com.karag.civilprotectionapp.models.ApprovedIncident;
 import com.karag.civilprotectionapp.models.Incident;
@@ -126,7 +127,8 @@ public class LocationService extends Service implements CloseIncidentsCallback {
                             if (IncidentManager.calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(), incident.getLatitude(), incident.getLongitude()) < maxDistance) {
                                 if (!alreadyReported(incident.getId())) {
                                     newIncidents.add(incident);
-                                    Caching.storeIncidentInCache(this,incident.getId(),dateToTimestamp(incident.getDatetime()));
+                                    if(incident.getDatetime()!=null) Caching.storeIncidentInCache(this,incident.getId(),dateToTimestamp(incident.getDatetime()));
+                                    else Caching.storeIncidentInCache(this,incident.getId(),dateToTimestamp(new Date()));
                                 }
                             }
                         }
@@ -144,10 +146,13 @@ public class LocationService extends Service implements CloseIncidentsCallback {
     public void onCloseIncidentsFound(List<ApprovedIncident> newCloseIncidents) {
         if (!newCloseIncidents.isEmpty()) {
             // There are close incidents, create a notification
-            if(newCloseIncidents.size()==1)
-            NotificationHelper.createNotification(getApplicationContext(),"SOS! There is a "+newCloseIncidents.get(0).getEmergencyType().toLowerCase()+" near your area","Reported "+getTimeAgo(newCloseIncidents.get(0).getDatetime()));
-            else{
+            if(newCloseIncidents.size()==1) {
+                Log.i(TAG,newCloseIncidents.get(0).getId());
+                NotificationHelper.createNotification(getApplicationContext(), "SOS! There is a " + newCloseIncidents.get(0).getEmergencyType().toLowerCase() + " near your area", "Reported " + getTimeAgo(newCloseIncidents.get(0).getDatetime()));
+            }
+            else if (newCloseIncidents.size()>1){
                 for(ApprovedIncident incident:newCloseIncidents){
+                    Log.i(TAG,incident.getId());
                     NotificationHelper.createNotification(getApplicationContext(),"SOS! There is a "+incident.getEmergencyType().toLowerCase()+" near your area","Reported "+getTimeAgo(incident.getDatetime()));
                 }
             }

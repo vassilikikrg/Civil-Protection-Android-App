@@ -5,7 +5,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -181,14 +183,34 @@ public class IncidentManager {
 
 
 
-    private CompositeIncident createCompositeIncident(List<MyIncident> incidentGroup){
-        int numOfReports=incidentGroup.size();
-        double averageDistance=calculateAverageDistance(incidentGroup);
-        double dangerLevel = calculateDangerLevel(numOfReports,averageDistance);
-        double[] centerCoordinates=calculateCenter(incidentGroup);
-        Date firstDateReported=findFirstReportedTime(incidentGroup);
+    private CompositeIncident createCompositeIncident(List<MyIncident> incidentGroup) {
+        int numOfReports = incidentGroup.size();
+        double averageDistance = calculateAverageDistance(incidentGroup);
+        double dangerLevel = calculateDangerLevel(numOfReports, averageDistance);
+        double[] centerCoordinates = calculateCenter(incidentGroup);
+        Date firstDateReported = findFirstReportedTime(incidentGroup);
 
-        return new CompositeIncident(incidentGroup.get(0).getEmergencyType(),firstDateReported,centerCoordinates[0],centerCoordinates[1],dangerLevel,numOfReports,DISTANCE_THRESHOLD_KM,incidentGroup);
+        // Initialize a new HashMap for image filenames
+        Map<String, String> imageDescriptions = new HashMap<>();
+
+        // Iterate through the incidentGroup and add each image filename to the map
+        for (MyIncident incident : incidentGroup) {
+            if(!incident.getImageFilename().equals(""))
+                imageDescriptions.put(incident.getUserId() + "/" + incident.getImageFilename(), incident.getDescription());
+        }
+
+        // Create and return a new CompositeIncident object with image filenames stored in a map
+        return new CompositeIncident(
+                incidentGroup.get(0).getEmergencyType(),
+                firstDateReported,
+                centerCoordinates[0],
+                centerCoordinates[1],
+                dangerLevel,
+                numOfReports,
+                DISTANCE_THRESHOLD_KM,
+                imageDescriptions,
+                incidentGroup
+        );
     }
 
     ////////////////////////////////

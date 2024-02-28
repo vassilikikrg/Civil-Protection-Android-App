@@ -3,6 +3,8 @@ package com.karag.civilprotectionapp;
 import static android.content.ContentValues.TAG;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,24 +16,29 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.denzcoskun.imageslider.ImageSlider;
+import com.denzcoskun.imageslider.models.SlideModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.karag.civilprotectionapp.models.ApprovedIncident;
 import com.karag.civilprotectionapp.models.CompositeIncident;
 import com.karag.civilprotectionapp.models.MyIncident;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import com.denzcoskun.imageslider.constants.ScaleTypes;
 public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapter.MyViewHolder> {
     private List<CompositeIncident> compositeIncidents;
     private Context myContext;
     private FirebaseFirestore db;
-
+    private static FirebaseStorage storage;
     // Constructor
     public PendingCasesAdapter(List<CompositeIncident> compositeIncidents, Context myContext) {
         this.compositeIncidents = compositeIncidents;
@@ -42,6 +49,7 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         TextView textViewArea,textViewEmergencyType,textViewFirstReported,textViewNumOfReports,textViewDangerLevel;
         Button checkButton, discardButton;
+        ImageSlider imageSlider;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -53,6 +61,7 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
             textViewDangerLevel=itemView.findViewById(R.id.textViewDangerLevel);
             checkButton = itemView.findViewById(R.id.check_button);
             discardButton = itemView.findViewById(R.id.discard_button);
+            imageSlider=itemView.findViewById(R.id.image_slider);
         }
         public void bind(CompositeIncident compositeIncident,Context context){
             textViewArea.setText(compositeIncident.getLocationName(context));
@@ -60,6 +69,25 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
             textViewFirstReported.setText(compositeIncident.formatDateTime());
             textViewNumOfReports.setText(String.valueOf(compositeIncident.getNumOfReports()));
             textViewDangerLevel.setText(compositeIncident.getDangerLevel()+"/10");
+            List<SlideModel> slideModels=new ArrayList<>();
+            // Check if the map contains any key-value pairs
+            Map<String, String> imageDescriptions = compositeIncident.getImageDescriptions();
+            if (imageDescriptions != null && !imageDescriptions.isEmpty()) {
+                imageDescriptions.forEach((key, value) -> {
+                    Log.i(TAG,key);
+                    if(!key.equals("")) {
+                        // Load image from Firebase Storage using the provided URL format
+                        String myKey = key.replace("/", "%2F");
+                        String imageUrl = "https://firebasestorage.googleapis.com/v0/b/civilprotectionapp-6bd54.appspot.com/o/" +
+                                myKey + "?alt=media&token=83b5fe1a-6038-44f7-a414-3defeba8f0f4";
+                        if(!value.equals("")) slideModels.add(new SlideModel(imageUrl, value, ScaleTypes.CENTER_INSIDE));
+                        else slideModels.add(new SlideModel(imageUrl, ScaleTypes.CENTER_INSIDE));
+                    }
+                });
+                imageSlider.setImageList(slideModels,ScaleTypes.CENTER_INSIDE);
+            }else{
+               imageSlider.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -124,8 +152,8 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
     }
 
     private void uploadIncidentToFirebase(CompositeIncident compositeIncident) {
-        ApprovedIncident approvedIncident=new ApprovedIncident(compositeIncident.getDangerLevel(),compositeIncident.getDatetime(),compositeIncident.getEmergencyType(),compositeIncident.getLatitude(),compositeIncident.getLongitude(),compositeIncident.getNumOfReports(),compositeIncident.getRange());
-        Map<String, Object> approvedIncidentMap =approvedIncident.toMap() ;
+        ApprovedIncident approvedIncident=new ApprovedIncident(compositeIncident);
+        Map<String, Object> approvedIncidentMap=approvedIncident.toMap() ;
 
         db.collection("approved_incidents")
                 .add(approvedIncidentMap)

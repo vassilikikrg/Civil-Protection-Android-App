@@ -11,10 +11,6 @@ import java.util.Map;
 public class ApprovedIncident {
 
     private String id;
-
-    private String description;
-
-    private List<String> imageFilenames;
     private double dangerLevel;
     private Date datetime;
     private String emergencyType;
@@ -22,17 +18,12 @@ public class ApprovedIncident {
     private double longitude;
     private double numOfReports;
     private double range;
+    private Map<String, String> imageDescriptions;
 
-    public ApprovedIncident(String description, String emergencyType, List<String> imageFilenames, Date datetime, double longitude, double latitude) {
-        this.description = description;
-        this.emergencyType = emergencyType;
-        this.imageFilenames = imageFilenames;
-        this.datetime = datetime;
-        this.longitude = longitude;
-        this.latitude = latitude;
+    public ApprovedIncident() {
     }
 
-    public ApprovedIncident(String id, double dangerLevel, Date datetime, String emergencyType, double latitude, double longitude, double numOfReports, double range) {
+    public ApprovedIncident(String id,double dangerLevel, Date datetime, String emergencyType, double latitude, double longitude, double numOfReports, double range, Map<String, String> imageDescriptions) {
         this.id = id;
         this.dangerLevel = dangerLevel;
         this.datetime = datetime;
@@ -41,15 +32,17 @@ public class ApprovedIncident {
         this.longitude = longitude;
         this.numOfReports = numOfReports;
         this.range = range;
+        this.imageDescriptions = imageDescriptions;
     }
-    public ApprovedIncident(double dangerLevel, Date datetime, String emergencyType, double latitude, double longitude, double numOfReports, double range) {
-        this.dangerLevel = dangerLevel;
-        this.datetime = datetime;
-        this.emergencyType = emergencyType;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.numOfReports = numOfReports;
-        this.range = range;
+    public ApprovedIncident(CompositeIncident compositeIncident){
+        this.dangerLevel = compositeIncident.getDangerLevel();
+        this.datetime = compositeIncident.getDatetime();
+        this.emergencyType = compositeIncident.getEmergencyType();
+        this.latitude = compositeIncident.getLatitude();
+        this.longitude = compositeIncident.getLongitude();
+        this.numOfReports = compositeIncident.getNumOfReports();
+        this.range = compositeIncident.getRange();
+        this.imageDescriptions = compositeIncident.getImageDescriptions();
     }
     public String getId() {
         return id;
@@ -83,28 +76,12 @@ public class ApprovedIncident {
         this.range = range;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getEmergencyType() {
         return emergencyType;
     }
 
     public void setEmergencyType(String emergencyType) {
         this.emergencyType = emergencyType;
-    }
-
-    public List<String> getImageFilenames() {
-        return imageFilenames;
-    }
-
-    public void setImageFilenames(List<String> imageFilenames) {
-        this.imageFilenames = imageFilenames;
     }
 
     public Date getDatetime() {
@@ -131,6 +108,14 @@ public class ApprovedIncident {
         this.latitude = latitude;
     }
 
+    public Map<String, String> getImageDescriptions() {
+        return imageDescriptions;
+    }
+
+    public void setImageDescriptions(Map<String, String> imageDescriptions) {
+        this.imageDescriptions = imageDescriptions;
+    }
+
     @Exclude
     public Map<String, Object> toMap() {
         Map<String, Object> approvedIncident = new HashMap<>();
@@ -141,7 +126,7 @@ public class ApprovedIncident {
         approvedIncident.put("latitude", this.getLatitude());
         approvedIncident.put("longitude", this.getLongitude());
         approvedIncident.put("range",this.getRange());
-
+        approvedIncident.put("imageDescriptions", this.getImageDescriptions());
         return approvedIncident;
     }
 
@@ -156,10 +141,16 @@ public class ApprovedIncident {
         double numOfReports=document.getDouble("numOfReports");
         Double range=document.getDouble("range");
         // If range is null, assign the default value of 10
-        if (range == null) {
-            range = 10.0; // Default value
+        if (range == null) range = 10.0; // Default value
+
+        // Get image descriptions as a Map
+        Map<String, String> imageDescriptions = new HashMap<>();
+        if (document.contains("imageDescriptions")) {
+            Object descriptionsObj = document.get("imageDescriptions");
+            if (descriptionsObj instanceof Map) {
+                imageDescriptions = (Map<String, String>) descriptionsObj;
+            }
         }
         // Create and return the Incident object
-        return new ApprovedIncident(id,dangerLevel,datetime, emergencyType,latitude, longitude,numOfReports,range);
-    }
+        return new ApprovedIncident(id,dangerLevel,datetime, emergencyType,latitude, longitude,numOfReports,range,imageDescriptions);}
 }

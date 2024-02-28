@@ -68,6 +68,14 @@ app:cardCornerRadius="8dp">
                 android:layout_height="wrap_content"/>
 
         </LinearLayout>
+        <com.denzcoskun.imageslider.ImageSlider
+            android:id="@+id/image_slider"
+            android:layout_width="wrap_content"
+            android:layout_height="250dp"
+            app:iss_auto_cycle="false"
+            app:iss_corner_radius="20"
+            android:minHeight="200dp"
+            app:iss_text_align="CENTER"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
