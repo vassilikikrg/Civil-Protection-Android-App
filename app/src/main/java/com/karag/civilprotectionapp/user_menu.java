@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.karag.civilprotectionapp.databinding.ActivityUserMenuBinding;
+import com.karag.civilprotectionapp.services.LocationService;
 
 public class user_menu extends AppCompatActivity {
 
@@ -50,13 +51,18 @@ public class user_menu extends AppCompatActivity {
             public void onClick(View v) {
                 // Perform logout logic here, such as signing out the user
                 FirebaseAuth.getInstance().signOut();
-
+                //Stop Location Service
+                stopLocationService();
                 // Navigate back to the login screen
                 Intent intent = new Intent(user_menu.this, LoginActivity.class);
                 startActivity(intent);
                 finish(); // Optional: Finish the current activity to prevent the user from navigating back to it using the back button
             }
         });
+    }
+    private void stopLocationService() {
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        stopService(serviceIntent);
     }
 
     private void replaceFragment(Fragment fragment){
