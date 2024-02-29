@@ -2,6 +2,8 @@ package com.karag.civilprotectionapp;
 
 import static android.content.ContentValues.TAG;
 
+import static com.karag.civilprotectionapp.models.Emergency.documentToEmergency;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,7 +52,7 @@ public class PendingCasesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_pending_cases, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.pendingCasesRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        pendingCasesAdapter = new PendingCasesAdapter(allIncidents,requireContext());
+        pendingCasesAdapter = new PendingCasesAdapter(emergenciesList,allIncidents,requireContext());
         recyclerView.setAdapter(pendingCasesAdapter);
         return view;
     }
@@ -93,17 +95,6 @@ public class PendingCasesFragment extends Fragment {
                 Log.e(TAG, "Error occurred while fetching incidents for emergency: " + emergency.getName(), e);
             }
         });
-    }
-
-    private Emergency documentToEmergency(QueryDocumentSnapshot document) {
-        // Extract data from Firestore document and create Emergency object
-        String name=document.getString("Name");
-        Log.i(TAG,name);
-        String greekName = document.getString("GreekName");
-        long timespan = document.getLong("timespan");
-        int range = ((Long) document.get("range")).intValue();
-        // Create and return the Incident object
-        return new Emergency(name,greekName,range,timespan);
     }
 // Custom comparator for sorting by danger level in descending order
     private static class DangerLevelComparator implements Comparator<CompositeIncident> {

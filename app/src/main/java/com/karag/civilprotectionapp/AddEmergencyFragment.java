@@ -43,6 +43,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.karag.civilprotectionapp.models.Emergency;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -69,6 +70,8 @@ public class AddEmergencyFragment extends Fragment {
     private FirebaseFirestore db;
     Uri imageUri=null;
     ProgressBar progressBar;
+    List<Emergency> emergenciesList = new ArrayList<>();
+
 
     public AddEmergencyFragment() {
         // Required empty public constructor
@@ -109,8 +112,10 @@ public class AddEmergencyFragment extends Fragment {
         //load emergency types into the spinner
         loadTypeEmergency(new EmergencyCallback() {
             @Override
-            public void onEmergencyLoaded(String[] emergencies) {
-                spinnerArrayAdapter.addAll(emergencies);
+            public void onEmergencyLoaded(Emergency[] emergencies) {
+                for(Emergency emergency:emergencies){
+                    spinnerArrayAdapter.add(Translator.getNameLocale(requireContext(),emergency));
+                }
                 spinnerArrayAdapter.notifyDataSetChanged();
             }
 
@@ -144,7 +149,7 @@ public class AddEmergencyFragment extends Fragment {
     }
 
     public interface EmergencyCallback {
-        void onEmergencyLoaded(String[] emergencies);
+        void onEmergencyLoaded(Emergency[] emergencies);
         void onError(String errorMessage);
     }
 
@@ -153,11 +158,10 @@ public class AddEmergencyFragment extends Fragment {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<String> emergenciesList = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            emergenciesList.add(document.getString("Name"));
+                            emergenciesList.add(Emergency.documentToEmergency(document));
                         }
-                        String[] emergenciesArray = emergenciesList.toArray(new String[0]);
+                        Emergency[] emergenciesArray = emergenciesList.toArray(new Emergency[0]);
                         callback.onEmergencyLoaded(emergenciesArray);
                     } else {
                         Log.w(TAG, "Error getting documents.", task.getException());
@@ -206,6 +210,7 @@ public class AddEmergencyFragment extends Fragment {
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
                 String emergencyType = spinner.getSelectedItem().toString();
+                if(!Translator.isEnglish(emergencyType)) emergencyType= Translator.translateNameToEnglish(emergencyType,emergenciesList);
                 String description = editTextDescription.getText().toString();
                 Date dateNow= new Date();
                 String userId=auth.getCurrentUser().getUid();

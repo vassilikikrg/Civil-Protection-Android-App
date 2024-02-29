@@ -1,7 +1,13 @@
 package com.karag.civilprotectionapp.models;
 
-public class Emergency {
+import com.google.firebase.database.Exclude;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Emergency {
     private String Name;
     private String GreekName;
     private int range; //in km
@@ -48,5 +54,25 @@ public class Emergency {
 
     public long timespanToMillieSeconds(){
         return this.timespan*60*60*1000;
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        Map<String, Object> emergencyMap = new HashMap<>();
+        emergencyMap.put("GreekName", this.getGreekName());
+        emergencyMap.put("Name", this.getName());
+        emergencyMap.put("range", this.getRange());
+        emergencyMap.put("timespan", this.getTimespan());
+        return emergencyMap;
+    }
+    public static Emergency documentToEmergency(QueryDocumentSnapshot document){
+        // Extract data from Firestore document and create Emergency object
+        String Name = document.getString("Name");
+        String GreekName = document.getString("GreekName");
+        Double rangeDb=document.getDouble("range");
+        int range = rangeDb.intValue();
+        long timespan = document.getLong("timespan");
+        // Create and return the Incident object
+        return new Emergency(Name,GreekName,range,timespan);
     }
 }

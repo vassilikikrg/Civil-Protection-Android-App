@@ -26,6 +26,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.karag.civilprotectionapp.models.ApprovedIncident;
 import com.karag.civilprotectionapp.models.CompositeIncident;
+import com.karag.civilprotectionapp.models.Emergency;
 import com.karag.civilprotectionapp.models.MyIncident;
 
 import java.util.ArrayList;
@@ -39,10 +40,14 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
     private Context myContext;
     private FirebaseFirestore db;
     private static FirebaseStorage storage;
+    private List<Emergency> emergencies;
     // Constructor
-    public PendingCasesAdapter(List<CompositeIncident> compositeIncidents, Context myContext) {
+    public PendingCasesAdapter(List<Emergency> emergencies,List<CompositeIncident> compositeIncidents, Context myContext) {
+        this.emergencies=emergencies;
         this.compositeIncidents = compositeIncidents;
         this.myContext = myContext;
+        this.db = FirebaseFirestore.getInstance();
+
     }
 
     // ViewHolder class
@@ -63,9 +68,9 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
             discardButton = itemView.findViewById(R.id.discard_button);
             imageSlider=itemView.findViewById(R.id.image_slider);
         }
-        public void bind(CompositeIncident compositeIncident,Context context){
+        public void bind(CompositeIncident compositeIncident,Context context,String localizedEmergencyName){
             textViewArea.setText(compositeIncident.getLocationName(context));
-            textViewEmergencyType.setText(compositeIncident.getEmergencyType());
+            textViewEmergencyType.setText(localizedEmergencyName);
             textViewFirstReported.setText(compositeIncident.formatDateTime());
             textViewNumOfReports.setText(String.valueOf(compositeIncident.getNumOfReports()));
             textViewDangerLevel.setText(compositeIncident.getDangerLevel()+"/10");
@@ -102,13 +107,25 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         CompositeIncident compositeIncident = compositeIncidents.get(position);
-        db=FirebaseFirestore.getInstance();
-        holder.bind(compositeIncident,myContext);
+        // Get the emergency type
+        String emergencyType = compositeIncident.getEmergencyType();
+        // Fetch the localized name using the Translator class
+        String localizedEmergencyName = Translator.getNameLocale(myContext, findEmergencyByName(emergencyType));
+        Log.i(TAG,localizedEmergencyName);
+        holder.bind(compositeIncident,myContext,localizedEmergencyName);
         // Set click listeners for buttons
         holder.checkButton.setOnClickListener(v -> onCheckButtonClick(compositeIncident));
         holder.discardButton.setOnClickListener(v -> onDiscardButtonClick(compositeIncident));
     }
-
+    // Method to find Emergency object by name
+    private Emergency findEmergencyByName(String emergencyName) {
+        for (Emergency emergency : emergencies) {
+            if (emergency.getName().equals(emergencyName)) {
+                return emergency;
+            }
+        }
+        return null; // Return null if not found
+    }
     @Override
     public int getItemCount() {
         return compositeIncidents.size();
