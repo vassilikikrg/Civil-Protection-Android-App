@@ -1,4 +1,4 @@
-package com.karag.civilprotectionapp.services;
+package com.karag.civilprotectionapp.helpers;
 
 import android.content.Context;
 import android.content.SharedPreferences;

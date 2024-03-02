@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">CivilProtectionApp</string>
+    <string name="app_name" translatable="false">Smart Alert</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title">App title test</string>
     <string name="greek">Greek</string>
@@ -19,4 +19,22 @@
     <string name="stats_title">Statistics</string>
     <string name="overall_stats_title" >Total number of incidents reported in the app</string>
     <string name="stats_per_month">Number of incidents reported per month</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="don_t_have_an_account_sign_up">Don\'t have an account? Sign Up</string>
+    <string name="name_hint">Name</string>
+    <string name="surname_hint">Surname</string>
+    <string name="username">Username</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="already_have_an_account_login">Already have an account? Login</string>
+    <string name="incidents_near_you">Incidents near you</string>
+    <string name="pending_incidents">Pending incidents</string>
+    <string name="area">Area</string>
+    <string name="emergency">Emergency</string>
+    <string name="first_reported_at">First Reported at:</string>
+    <string name="reported_by">Reported by:</string>
+    <string name="danger_level">Danger Level:</string>
+    <string name="approve">Approve</string>
+    <string name="discard">Discard</string>
 </resources>

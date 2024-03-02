@@ -1,4 +1,4 @@
-package com.karag.civilprotectionapp;
+package com.karag.civilprotectionapp.helpers;
 
 import android.content.Context;
 

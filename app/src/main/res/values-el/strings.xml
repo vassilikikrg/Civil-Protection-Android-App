@@ -19,4 +19,22 @@
     <string name="stats_title">Στατιστικά</string>
     <string name="overall_stats_title">"Πλήθος περιστατικών που έχουν δηλωθεί στην εφαρμογή "</string>
     <string name="stats_per_month">Πλήθος αναφορών που υποβλήθηκαν τον προηγούμενο μήνα</string>
+    <string name="email">Email</string>
+    <string name="password">Κωδικός πρόσβασης</string>
+    <string name="login">Σύνδεση</string>
+    <string name="don_t_have_an_account_sign_up">Δεν έχεις λογαριασμό? Εγγραφή</string>
+    <string name="name_hint">Όνομα</string>
+    <string name="surname_hint">Επώνυμο</string>
+    <string name="username">Όνομα χρήστη</string>
+    <string name="sign_up">Εγγραφή</string>
+    <string name="already_have_an_account_login">Έχεις ήδη λογαριασμό? Σύνδεση</string>
+    <string name="incidents_near_you">Περιστατικά στην περιοχή σου</string>
+    <string name="pending_incidents">Αναφορές υπό εξέταση</string>
+    <string name="area">Περιοχή</string>
+    <string name="emergency">Έκτακτη ανάγκη</string>
+    <string name="first_reported_at">"Υποβλήθηκε πρώτα στις: "</string>
+    <string name="reported_by">Πλήθος αναφορών:</string>
+    <string name="danger_level">Βαθμός επικινδυνότητας:</string>
+    <string name="approve">Έγκριση</string>
+    <string name="discard">Απόρριψη</string>
 </resources>

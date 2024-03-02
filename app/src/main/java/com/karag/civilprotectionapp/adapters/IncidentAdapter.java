@@ -1,4 +1,4 @@
-package com.karag.civilprotectionapp;
+package com.karag.civilprotectionapp.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.karag.civilprotectionapp.R;
 import com.karag.civilprotectionapp.models.Incident;
 
 import java.util.List;

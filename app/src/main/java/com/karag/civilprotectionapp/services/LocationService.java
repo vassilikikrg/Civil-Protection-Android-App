@@ -2,7 +2,6 @@ package com.karag.civilprotectionapp.services;
 
 import static android.content.ContentValues.TAG;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,7 +10,6 @@ import android.os.IBinder;
 import android.os.Looper;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
@@ -22,16 +20,13 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.Priority;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.type.DateTime;
 import com.karag.civilprotectionapp.danger_assessment.IncidentManager;
+import com.karag.civilprotectionapp.helpers.Caching;
+import com.karag.civilprotectionapp.helpers.NotificationHelper;
 import com.karag.civilprotectionapp.models.ApprovedIncident;
-import com.karag.civilprotectionapp.models.Incident;
-import com.karag.civilprotectionapp.models.MyIncident;
 
 import java.util.ArrayList;
 import java.util.Date;

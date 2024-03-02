@@ -9,7 +9,7 @@
         android:id="@+id/textViewTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Incidents near you"
+        android:text="@string/incidents_near_you"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_alignParentStart="true"

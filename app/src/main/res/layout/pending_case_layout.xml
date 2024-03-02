@@ -22,7 +22,7 @@ app:cardCornerRadius="8dp">
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:drawableStart="@drawable/baseline_pin_drop_24"
-                android:text="Area"
+                android:text="@string/area"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -32,7 +32,7 @@ app:cardCornerRadius="8dp">
                 android:layout_height="wrap_content"
                 android:layout_marginRight="16dp"
                 android:layout_weight="1"
-                android:text="Emergency"
+                android:text="@string/emergency"
                 android:textAlignment="textEnd"
                 android:textSize="16sp"
                 android:textStyle="italic" />
@@ -45,7 +45,7 @@ app:cardCornerRadius="8dp">
                 android:id="@+id/textViewFirstReportedLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="First Reported at: " />
+                android:text="@string/first_reported_at" />
             <TextView
                 android:id="@+id/textViewFirstReported"
                 android:layout_width="wrap_content"
@@ -61,7 +61,7 @@ app:cardCornerRadius="8dp">
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="8dp"
-                android:text="Reported by:" />
+                android:text="@string/reported_by" />
             <TextView
                 android:id="@+id/textViewNumOfReports"
                 android:layout_width="wrap_content"
@@ -88,7 +88,7 @@ app:cardCornerRadius="8dp">
                 android:layout_marginTop="8dp"
                 android:layout_marginRight="8dp"
 
-                android:text="Danger Level:"
+                android:text="@string/danger_level"
                 android:textSize="16sp"
                 android:textStyle="bold" />
             <TextView
@@ -114,7 +114,8 @@ app:cardCornerRadius="8dp">
             android:layout_marginRight="32dp"
             android:layout_weight="1"
             android:backgroundTint="#4CAF50"
-            android:text="Approve"
+            android:text="@string/approve"
+            android:textSize="12sp"
             app:icon="@drawable/baseline_check_24" />
 
         <Button
@@ -123,7 +124,8 @@ app:cardCornerRadius="8dp">
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="#E91E36"
-            android:text="Discard"
+            android:text="@string/discard"
+            android:textSize="12sp"
             app:icon="@drawable/baseline_close_24" />
     </LinearLayout>
 

@@ -1,5 +1,4 @@
 package com.karag.civilprotectionapp;
-import static android.content.ContentValues.TAG;
 
 import android.Manifest;
 import android.content.Intent;
@@ -12,8 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -29,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.karag.civilprotectionapp.adapters.IncidentAdapter;
 import com.karag.civilprotectionapp.models.Incident;
 import com.karag.civilprotectionapp.services.LocationService;
 

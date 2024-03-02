@@ -1,4 +1,4 @@
-package com.karag.civilprotectionapp.services;
+package com.karag.civilprotectionapp.helpers;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;

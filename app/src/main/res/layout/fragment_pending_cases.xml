@@ -12,7 +12,7 @@
         android:id="@+id/pendingCasesTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Pending Cases"
+        android:text="@string/pending_incidents"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_alignParentStart="true"
