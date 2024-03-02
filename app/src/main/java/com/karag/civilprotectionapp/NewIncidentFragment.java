@@ -1,5 +1,7 @@
 package com.karag.civilprotectionapp;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,9 +26,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.karag.civilprotectionapp.adapters.IncidentAdapter;
+import com.karag.civilprotectionapp.danger_assessment.IncidentManager;
+import com.karag.civilprotectionapp.helpers.Caching;
+import com.karag.civilprotectionapp.models.ApprovedIncident;
 import com.karag.civilprotectionapp.models.Incident;
 import com.karag.civilprotectionapp.services.LocationService;
 
@@ -42,9 +48,9 @@ import java.util.Map;
 @RequiresApi(api = 34)
 public class NewIncidentFragment extends Fragment {
 
-    private List<Incident> incidents;
+    private List<ApprovedIncident> incidents;
     private IncidentAdapter incidentAdapter;
-    private Map<String, String> userMap; // Map to store userId and username
+    //private Map<String, String> userMap; // Map to store userId and username
     private Location userLocation;
     private static final double MAX_DISTANCE = 10000; // Maximum distance in meters (e.g., 10 kilometers)
     private static final int REQUEST_CODE_PERMISSIONS = 101;
@@ -59,15 +65,15 @@ public class NewIncidentFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        incidents = new ArrayList<>();
-        userMap = new HashMap<>();
-        fetchUsernamesFromFirestore(); // Fetch usernames first
-        fetchIncidentsFromFirestore(); // Fetch incidents after fetching usernames
-        incidentAdapter = new IncidentAdapter(incidents, userMap);
 
         //Permission dialog
         if(arePermissionsGranted(permissions)){
             startLocationService();
+            incidents = new ArrayList<>();
+            List<String> incidentIds = Caching.getStoredIncidentIds(requireContext());
+            // userMap = new HashMap<>();
+            fetchIncidentsFromFirestore(incidentIds); // Fetch incidents after fetching usernames
+            incidentAdapter = new IncidentAdapter(incidents);
         }else{
         multiplePermissionsContract = new ActivityResultContracts.RequestMultiplePermissions();
         multiplePermissionLauncher = registerForActivityResult(multiplePermissionsContract, isGranted -> {
@@ -147,91 +153,58 @@ public class NewIncidentFragment extends Fragment {
         }
     }
 
-
-    // Fetch usernames from Firestore
-    private void fetchUsernamesFromFirestore() {
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        firestore.collection("users")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            String userId = document.getId();
-                            String username = document.getString("username");
-                            userMap.put(userId, username);
-                        }
-                        incidentAdapter.notifyDataSetChanged(); // Notify adapter after fetching usernames
-                    } else {
-                        Log.e("NewIncidentFragment", "Error fetching usernames", task.getException());
-                    }
-                });
-    }
-
     // Fetch incidents from Firestore
-    private void fetchIncidentsFromFirestore() {
+    /*private void fetchIncidentsFromFirestore() {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        firestore.collection("incidents")
+        firestore.collection("approved_incidents")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             // Parse incident data and add it to the list
-                            Incident incident = parseIncident(document);
-                            incidents.add(incident);
+                            if (isClosetoUser(document.getDouble("latitude"), document.getDouble("longitude"), userLocation.getLatitude(), userLocation.getLongitude(), document.getDouble("range")))
+                            {
+                                ApprovedIncident incident = parseIncident(document);
+                                incidents.add(incident);
+                            }
                         }
                         incidentAdapter.notifyDataSetChanged();
                     } else {
                         Log.e("NewIncidentFragment", "Error fetching incidents", task.getException());
                     }
                 });
+    }*/
+
+    private void fetchIncidentsFromFirestore(List<String> incidentIds) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        for (String incidentId : incidentIds) {
+            db.collection("approved_incidents")
+                    .document(incidentId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        // Check if the document exists
+                        if (documentSnapshot.exists()) {
+                            // Convert the document data to your Incident model
+                            ApprovedIncident incident = parseIncident(documentSnapshot);
+                            incidents.add(incident);
+
+                        } else {
+                            Log.d(TAG, "No such document with ID: " + incidentId);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error fetching incident with ID: " + incidentId, e);
+                    });
+        }
+        incidentAdapter.notifyDataSetChanged();
     }
 
     // Parse Firestore document to Incident object
-    private Incident parseIncident(QueryDocumentSnapshot document) {
-        // Extract incident data from document
-        String userId = document.getString("uid");
-        String description = document.getString("description");
-        String emergencyType = document.getString("emergencyType");
-        String imageFilename = document.getString("imageFilename");
-        Timestamp timestamp = document.getTimestamp("dateTime");
-        String dateTime = timestamp != null ? formatDateTime(timestamp.toDate().toString()) : "";
-        double latitude = document.getDouble("latitude");
-        double longitude = document.getDouble("longitude");
-        String locationName = getLocationName(latitude, longitude);
-        // Create and return Incident object
-        return new Incident(userId, description, emergencyType, imageFilename, dateTime, locationName, longitude, latitude);
+    private ApprovedIncident parseIncident(DocumentSnapshot document) {
+        return ApprovedIncident.documentToIncident(document, requireContext());
     }
 
-    // Format datetime string
-    private String formatDateTime(String dateString) {
-        SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
-        SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
-        try {
-            Date date = inputFormat.parse(dateString);
-            return outputFormat.format(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return "Unknown Date";
-        }
-    }
 
-    // Get location name from latitude and longitude
-    private String getLocationName(double latitude, double longitude) {
-        Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                Address address = addresses.get(0);
-                String city = address.getLocality();
-                if (city != null && !city.isEmpty()) {
-                    return city; // Return the city name if available
-                } else {
-                    return "Unknown Location"; // If city is not available, return a default value
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "Unknown Location";
-    }
+
+
 }

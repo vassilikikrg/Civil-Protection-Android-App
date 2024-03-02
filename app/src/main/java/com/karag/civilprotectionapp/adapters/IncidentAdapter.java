@@ -1,5 +1,7 @@
 package com.karag.civilprotectionapp.adapters;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,26 +15,30 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.denzcoskun.imageslider.ImageSlider;
+import com.denzcoskun.imageslider.constants.ScaleTypes;
+import com.denzcoskun.imageslider.models.SlideModel;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.karag.civilprotectionapp.R;
+import com.karag.civilprotectionapp.models.ApprovedIncident;
 import com.karag.civilprotectionapp.models.Incident;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class IncidentAdapter extends RecyclerView.Adapter<IncidentAdapter.ViewHolder> {
 
-    private List<Incident> incidents;
-    private Map<String, String> userMap;
+    private List<ApprovedIncident> incidents;
+
     private FirebaseStorage storage;
 
     private Context context;
     private Location userLocation;
 
-    public IncidentAdapter(List<Incident> incidents, Map<String, String> userMap) {
+    public IncidentAdapter(List<ApprovedIncident> incidents) {
         this.incidents = incidents;
-        this.userMap = userMap;
         this.storage = FirebaseStorage.getInstance();
         this.context = context;
         this.userLocation = userLocation;
@@ -47,7 +53,7 @@ public class IncidentAdapter extends RecyclerView.Adapter<IncidentAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Incident incident = incidents.get(position);
+        ApprovedIncident incident = incidents.get(position);
         holder.bind(incident);
     }
 
@@ -58,55 +64,48 @@ public class IncidentAdapter extends RecyclerView.Adapter<IncidentAdapter.ViewHo
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView textViewUsername;
-        private TextView textViewDescription;
+        private TextView textViewArea;
+        private TextView textViewFirstReported;
         private TextView textViewEmergencyType;
-        private ImageView imageView;
-        private TextView textViewDateTime;
-        private TextView textViewLocation;
+        private ImageSlider imageSlider;
+        private TextView textViewNumOfReports;
+        private TextView textViewDangerLevel;
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            textViewUsername = itemView.findViewById(R.id.textViewUsername);
-            textViewDescription = itemView.findViewById(R.id.textViewDescription);
-            textViewEmergencyType = itemView.findViewById(R.id.textViewEmergencyType);
-            imageView = itemView.findViewById(R.id.imageView);
-            textViewDateTime = itemView.findViewById(R.id.textViewDateTime);
-            textViewLocation = itemView.findViewById(R.id.textViewLocation);
+            textViewArea=itemView.findViewById(R.id.textViewArea);
+            textViewEmergencyType=itemView.findViewById(R.id.textViewEmergencyType);
+            textViewFirstReported=itemView.findViewById(R.id.textViewFirstReported);
+            textViewNumOfReports=itemView.findViewById(R.id.textViewNumOfReports);
+            textViewDangerLevel=itemView.findViewById(R.id.textViewDangerLevel);
+            imageSlider=itemView.findViewById(R.id.image_slider);
         }
 
-        public void bind(Incident incident) {
-            String username = userMap.get(incident.getUserId());
-            textViewUsername.setText(username != null ? username + " posted:" : "Unknown User");
-            String description = incident.getDescription();
-            if (description != null && !description.isEmpty()) {
-                textViewDescription.setText(description);
-            } else {
-                textViewDescription.setText("No description available");
-            }
+        public void bind(ApprovedIncident incident) {
+            textViewArea.setText(incident.getLocationName());
             textViewEmergencyType.setText(incident.getEmergencyType());
-            textViewDateTime.setText(incident.getDatetime());
-            textViewLocation.setText(incident.getLocation());
-
-            if (incident.getImageFilename() != null && !incident.getImageFilename().isEmpty()) {
-                // Load image from Firebase Storage using the provided URL format
-                String imageUrl = "https://firebasestorage.googleapis.com/v0/b/civilprotectionapp-6bd54.appspot.com/o/" +
-                        incident.getUserId() + "%2F" + incident.getImageFilename() + "?alt=media&token=83b5fe1a-6038-44f7-a414-3defeba8f0f4";
-
-                StorageReference imageRef = storage.getReferenceFromUrl(imageUrl);
-                imageRef.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
-                    // Successfully retrieved image data
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                    imageView.setImageBitmap(bitmap);
-                }).addOnFailureListener(exception -> {
-                    // Failed to fetch image
-                    Log.e("IncidentAdapter", "Failed to load image: " + exception.getMessage());
-                    imageView.setImageResource(R.drawable.loading); // Placeholder image
+            textViewFirstReported.setText(incident.formatDateTime());
+            textViewNumOfReports.setText(String.valueOf(incident.getNumOfReports()));
+            textViewDangerLevel.setText(incident.getDangerLevel()+"/10");
+            List<SlideModel> slideModels=new ArrayList<>();
+            // Check if the map contains any key-value pairs
+            Map<String, String> imageDescriptions = incident.getImageDescriptions();
+            if (imageDescriptions != null && !imageDescriptions.isEmpty()) {
+                imageDescriptions.forEach((key, value) -> {
+                    Log.i(TAG,key);
+                    if(!key.equals("")) {
+                        // Load image from Firebase Storage using the provided URL format
+                        String myKey = key.replace("/", "%2F");
+                        String imageUrl = "https://firebasestorage.googleapis.com/v0/b/civilprotectionapp-6bd54.appspot.com/o/" +
+                                myKey + "?alt=media&token=83b5fe1a-6038-44f7-a414-3defeba8f0f4";
+                        if(!value.equals("")) slideModels.add(new SlideModel(imageUrl, value, ScaleTypes.CENTER_INSIDE));
+                        else slideModels.add(new SlideModel(imageUrl, ScaleTypes.CENTER_INSIDE));
+                    }
                 });
-            } else {
-                // No image filename provided
-                imageView.setVisibility(View.GONE); // Placeholder image
+                imageSlider.setImageList(slideModels,ScaleTypes.CENTER_INSIDE);
+            }else{
+                imageSlider.setVisibility(View.GONE);
             }
         }
 

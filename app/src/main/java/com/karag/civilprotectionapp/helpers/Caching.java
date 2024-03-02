@@ -3,7 +3,9 @@ package com.karag.civilprotectionapp.helpers;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Caching {
@@ -49,6 +51,11 @@ public class Caching {
         }
         editor.putStringSet(INCIDENT_ID_SET_KEY, incidentIdSet);
         editor.apply();
+    }
+
+    public static List<String> getStoredIncidentIds(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(INCIDENTS_CACHE_PREF, Context.MODE_PRIVATE);
+        return new ArrayList<>(sharedPreferences.getStringSet(INCIDENT_ID_SET_KEY, new HashSet<>()));
     }
 
 }

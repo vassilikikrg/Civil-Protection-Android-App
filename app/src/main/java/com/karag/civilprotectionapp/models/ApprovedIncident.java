@@ -1,11 +1,19 @@
 package com.karag.civilprotectionapp.models;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
+
 import com.google.firebase.database.Exclude;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class ApprovedIncident {
@@ -19,6 +27,7 @@ public class ApprovedIncident {
     private double numOfReports;
     private double range;
     private Map<String, String> imageDescriptions;
+    private String locationName ;
 
     public ApprovedIncident() {
     }
@@ -44,6 +53,19 @@ public class ApprovedIncident {
         this.range = compositeIncident.getRange();
         this.imageDescriptions = compositeIncident.getImageDescriptions();
     }
+
+    public ApprovedIncident(double dangerLevel, Date datetime, String emergencyType, double latitude, double longitude, double numOfReports, double range, String locationName, Map<String, String> imageDescriptions) {
+        this.dangerLevel = dangerLevel;
+        this.datetime = datetime;
+        this.emergencyType = emergencyType;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.numOfReports = numOfReports;
+        this.range = range;
+        this.locationName = locationName;
+        this.imageDescriptions = imageDescriptions;
+    }
+
     public String getId() {
         return id;
     }
@@ -116,6 +138,14 @@ public class ApprovedIncident {
         this.imageDescriptions = imageDescriptions;
     }
 
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
+    }
+
     @Exclude
     public Map<String, Object> toMap() {
         Map<String, Object> approvedIncident = new HashMap<>();
@@ -152,5 +182,59 @@ public class ApprovedIncident {
             }
         }
         // Create and return the Incident object
-        return new ApprovedIncident(id,dangerLevel,datetime, emergencyType,latitude, longitude,numOfReports,range,imageDescriptions);}
+        return new ApprovedIncident(id,dangerLevel,datetime, emergencyType,latitude, longitude,numOfReports,range,imageDescriptions);
+    }
+
+
+    public static ApprovedIncident documentToIncident(DocumentSnapshot document, Context context){
+        String emergencyType = document.getString("emergencyType");
+        Date datetime = document.getDate("dateTime");
+        double latitude = document.getDouble("latitude");
+        double longitude = document.getDouble("longitude");
+        double dangerLevel=document.getDouble("dangerLevel");
+        double numOfReports=document.getDouble("numOfReports");
+        Double range=document.getDouble("range");
+        // If range is null, assign the default value of 10
+        if (range == null) range = 10.0; // Default value
+
+        // Get image descriptions as a Map
+        Map<String, String> imageDescriptions = new HashMap<>();
+        if (document.contains("imageDescriptions")) {
+            Object descriptionsObj = document.get("imageDescriptions");
+            if (descriptionsObj instanceof Map) {
+                imageDescriptions = (Map<String, String>) descriptionsObj;
+            }
+        }
+
+        String locatioName = getSpecificLocationName(latitude, longitude, context);
+        // Create and return the Incident object
+        return new ApprovedIncident(dangerLevel,datetime, emergencyType,latitude, longitude,numOfReports,range,locatioName, imageDescriptions);
+    }
+
+    private static String getSpecificLocationName(double latitude, double longitude, Context context) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                String city = address.getLocality();
+                if (city != null && !city.isEmpty()) {
+                    return city; // Return the city name if available
+                } else {
+                    return "Unknown Location"; // If city is not available, return a default value
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Unknown Location";
+    }
+
+    // Format datetime string
+    public String formatDateTime() {
+        SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+        SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
+        return outputFormat.format(this.datetime);
+    }
+
 }
