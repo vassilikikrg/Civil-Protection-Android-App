@@ -119,7 +119,7 @@ public class AddEmergencyFragment extends Fragment {
 
     private void handleImageSelection(Uri uri) {
         if (uri == null) {
-            Toast.makeText(requireContext(), "No image selected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getResources().getString(R.string.no_image), Toast.LENGTH_SHORT).show();
         } else {
             // Handle the selected image URI as needed
             imageUri=uri;
@@ -212,7 +212,7 @@ public class AddEmergencyFragment extends Fragment {
                 }
             }
             else {
-                Toast.makeText(requireContext(), "Unable to retrieve location.Please give the related permission to the app", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getResources().getString(R.string.don_t_have_location_permission), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -231,10 +231,10 @@ public class AddEmergencyFragment extends Fragment {
         db.collection("incidents")
                 .add(incident)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(requireContext(),"Incident reported successfully.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(),getResources().getString(R.string.incident_reported_successfully),Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());})
                 .addOnFailureListener(e -> {
-                    Toast.makeText(requireContext(),"Failed to report incident",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(),getResources().getString(R.string.failed_to_report_incident),Toast.LENGTH_SHORT).show();
                     Log.w(TAG, "Error adding document", e);});
     }
 

@@ -37,4 +37,17 @@
     <string name="danger_level">Βαθμός επικινδυνότητας:</string>
     <string name="approve">Έγκριση</string>
     <string name="discard">Απόρριψη</string>
+    <string name="don_t_have_location_permission">Παρακαλώ επιτρέψτε στην εφαρμογή να έχει πρόσβαση στην τοποθεσία σας</string>
+    <string name="can_t_access_location">Δεν είναι δυνατή η εύρεση της τοποθεσίας σας. Παρακαλώ δοκιμάστε ξανά αργότερα!</string>
+    <string name="incident_reported_successfully">Το περιστατικό υποβλήθηκε με επιτυχία!</string>
+    <string name="failed_to_report_incident">Η αναφορά του περιστατικού απέτυχε</string>
+    <string name="fill_in_all_fields">Παρακαλώ συμπληρώστε όλα τα πεδία</string>
+    <string name="auth_failed">Η ταυτοποίηση απέτυχε.</string>
+    <string name="error_occured">Παρουσιάστηκε σφάλμα. Παρακαλώ δοκιμάστε ξανά αργότερα</string>
+    <string name="failed_sign_up">Η δημιουργία λογαριασμού απέτυχε</string>
+    <string name="failed_load_incidents">Αποτυχία φόρτωσης στατιστικών</string>
+    <string name="unknown_location">Άγνωστη περιοχή</string>
+    <string name="no_image">Δεν επιλέχθηκε φωτογραφία</string>
+    <string name="no_incidents">Ευτυχώς, δεν έχουν γίνει πρόσφατες αναφορές</string>
+    <string name="no_incidents_near">Ευτυχώς, δεν υπάρχουν αναφορές έκτακτης ανάγκης κοντά σας!</string>
 </resources>

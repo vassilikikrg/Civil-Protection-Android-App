@@ -37,4 +37,17 @@
     <string name="danger_level">Danger Level:</string>
     <string name="approve">Approve</string>
     <string name="discard">Discard</string>
+    <string name="don_t_have_location_permission">Please allow the app to access your location.</string>
+    <string name="can_t_access_location">Can\'t find your location. Please try again later!</string>
+    <string name="incident_reported_successfully">Incident reported successfully!</string>
+    <string name="failed_to_report_incident">Failed to report incident</string>
+    <string name="fill_in_all_fields">Please fill in all fields</string>
+    <string name="auth_failed">Authentication failed.</string>
+    <string name="error_occured">An error occurred. Please try again later</string>
+    <string name="failed_sign_up">Failed to create user account</string>
+    <string name="failed_load_incidents">Failed to load statistics</string>
+    <string name="unknown_location">Unknown area</string>
+    <string name="no_image">No image selected</string>
+    <string name="no_incidents">Thankfully, there are no incidents reported</string>
+    <string name="no_incidents_near">Thankfully,there are no incidents near you!</string>
 </resources>
