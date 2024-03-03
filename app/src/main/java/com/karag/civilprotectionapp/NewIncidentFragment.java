@@ -2,7 +2,10 @@ package com.karag.civilprotectionapp;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static com.karag.civilprotectionapp.models.Emergency.documentToEmergency;
+
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -13,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -36,23 +40,28 @@ import com.karag.civilprotectionapp.adapters.IncidentAdapter;
 import com.karag.civilprotectionapp.danger_assessment.IncidentManager;
 import com.karag.civilprotectionapp.helpers.Caching;
 import com.karag.civilprotectionapp.models.ApprovedIncident;
+import com.karag.civilprotectionapp.models.Emergency;
 import com.karag.civilprotectionapp.models.Incident;
 import com.karag.civilprotectionapp.services.LocationService;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RequiresApi(api = 34)
 public class NewIncidentFragment extends Fragment {
 
     private List<ApprovedIncident> incidents;
     private IncidentAdapter incidentAdapter;
+    private List<Emergency> emergenciesList = new ArrayList<>();
     private FusedLocationProviderClient fusedLocationClient;
     private final String[] permissions = {
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -66,6 +75,7 @@ public class NewIncidentFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fetchTypeEmergency(); // fetch emergencies
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
         //Permission dialog
         if (arePermissionsGranted(permissions)) {
@@ -73,7 +83,7 @@ public class NewIncidentFragment extends Fragment {
             // Fetch incidents and update adapter
             incidents = new ArrayList<>();
             fetchIncidentsFromFirestore();
-            incidentAdapter = new IncidentAdapter(incidents);
+            incidentAdapter = new IncidentAdapter(emergenciesList,incidents,requireContext());
         } else {
             multiplePermissionsContract = new ActivityResultContracts.RequestMultiplePermissions();
             multiplePermissionLauncher = registerForActivityResult(multiplePermissionsContract, isGranted -> {
@@ -134,23 +144,34 @@ public class NewIncidentFragment extends Fragment {
             Toast.makeText(requireContext(), getResources().getString(R.string.don_t_have_location_permission),Toast.LENGTH_SHORT).show();
             return;
         }
+        //calculate the timestamp for 24 hours ago
+        long twentyFourHoursAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
+        Date twentyFourHoursAgoDate = new Date(twentyFourHoursAgo);
         fusedLocationClient
                 .getLastLocation()
                 .addOnSuccessListener(location -> {
                     if (location != null) {
                         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                         firestore.collection("approved_incidents")
+                                .whereGreaterThanOrEqualTo("dateTime", twentyFourHoursAgoDate)
                                 .get()
                                 .addOnCompleteListener(task -> {
+
                                     if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            // Parse incident data and add it to the list
-                                            if (isClosetoUser(document.getDouble("latitude"), document.getDouble("longitude"), location.getLatitude(), location.getLongitude(), document.getDouble("range"))) {
-                                                ApprovedIncident incident = parseIncident(document);
-                                                incidents.add(incident);
+                                        if (task.getResult().isEmpty()) {
+
+                                            Log.d("NewIncidentFragment", "No incidents found.");
+
+                                        }else{
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                // Parse incident data and add it to the list
+                                                if (isClosetoUser(document.getDouble("latitude"), document.getDouble("longitude"), location.getLatitude(), location.getLongitude(), document.getDouble("range"))) {
+                                                    ApprovedIncident incident = parseIncident(document);
+                                                    incidents.add(incident);
+                                                }
                                             }
+                                            incidentAdapter.notifyDataSetChanged();
                                         }
-                                        incidentAdapter.notifyDataSetChanged();
                                     } else {
                                         Log.e("NewIncidentFragment", "Error fetching incidents", task.getException());
                                     }
@@ -173,6 +194,15 @@ public class NewIncidentFragment extends Fragment {
     }
 
 
-
-
+    private void fetchTypeEmergency() {
+        FirebaseFirestore.getInstance().collection("emergencies")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            emergenciesList.add(documentToEmergency(document));
+                        }
+                    }
+                });
+    }
 }

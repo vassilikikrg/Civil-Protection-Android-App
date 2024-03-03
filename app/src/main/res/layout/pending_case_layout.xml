@@ -30,16 +30,16 @@ app:cardCornerRadius="8dp">
                 android:id="@+id/textViewEmergencyType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="16dp"
                 android:layout_weight="1"
                 android:text="@string/emergency"
                 android:textAlignment="textEnd"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="italic" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:orientation="horizontal">
             <TextView
                 android:id="@+id/textViewFirstReportedLabel"

@@ -18,10 +18,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.denzcoskun.imageslider.ImageSlider;
 import com.denzcoskun.imageslider.constants.ScaleTypes;
 import com.denzcoskun.imageslider.models.SlideModel;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.karag.civilprotectionapp.R;
+import com.karag.civilprotectionapp.helpers.Translator;
 import com.karag.civilprotectionapp.models.ApprovedIncident;
+import com.karag.civilprotectionapp.models.CompositeIncident;
+import com.karag.civilprotectionapp.models.Emergency;
 import com.karag.civilprotectionapp.models.Incident;
 
 import java.util.ArrayList;
@@ -30,18 +34,14 @@ import java.util.Map;
 
 public class IncidentAdapter extends RecyclerView.Adapter<IncidentAdapter.ViewHolder> {
 
-    private List<ApprovedIncident> incidents;
-
-    private FirebaseStorage storage;
-
+    private List<ApprovedIncident> incidents;;
     private Context context;
-    private Location userLocation;
+    private List<Emergency> emergencies;
 
-    public IncidentAdapter(List<ApprovedIncident> incidents) {
+    public IncidentAdapter(List<Emergency> emergencies, List<ApprovedIncident> incidents,Context context) {
+        this.emergencies=emergencies;
         this.incidents = incidents;
-        this.storage = FirebaseStorage.getInstance();
-        this.context = context;
-        this.userLocation = userLocation;
+        this.context=context;
     }
 
     @NonNull
@@ -54,7 +54,11 @@ public class IncidentAdapter extends RecyclerView.Adapter<IncidentAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ApprovedIncident incident = incidents.get(position);
-        holder.bind(incident);
+        // Get the emergency type
+        String emergencyType = incident.getEmergencyType();
+        // Fetch the localized name using the Translator class
+        String localizedEmergencyName = Translator.getNameLocale(context, findEmergencyByName(emergencyType));
+        holder.bind(incident,context,localizedEmergencyName);
     }
 
     @Override
@@ -82,11 +86,11 @@ public class IncidentAdapter extends RecyclerView.Adapter<IncidentAdapter.ViewHo
             imageSlider=itemView.findViewById(R.id.image_slider);
         }
 
-        public void bind(ApprovedIncident incident) {
+        public void bind(ApprovedIncident incident,Context context,String localizedEmergencyName) {
             textViewArea.setText(incident.getLocationName());
-            textViewEmergencyType.setText(incident.getEmergencyType());
+            textViewEmergencyType.setText(localizedEmergencyName);
             textViewFirstReported.setText(incident.formatDateTime());
-            textViewNumOfReports.setText(String.valueOf(incident.getNumOfReports()));
+            textViewNumOfReports.setText(String.valueOf((int)incident.getNumOfReports()));
             textViewDangerLevel.setText(incident.getDangerLevel()+"/10");
             List<SlideModel> slideModels=new ArrayList<>();
             // Check if the map contains any key-value pairs
@@ -109,6 +113,15 @@ public class IncidentAdapter extends RecyclerView.Adapter<IncidentAdapter.ViewHo
             }
         }
 
+    }
+    // Method to find Emergency object by name
+    private Emergency findEmergencyByName(String emergencyName) {
+        for (Emergency emergency : emergencies) {
+            if (emergency.getName().equals(emergencyName)) {
+                return emergency;
+            }
+        }
+        return null; // Return null if not found
     }
     }
 

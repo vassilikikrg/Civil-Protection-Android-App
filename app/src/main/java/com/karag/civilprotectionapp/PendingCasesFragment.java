@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -91,6 +92,7 @@ public class PendingCasesFragment extends Fragment {
                 Collections.sort(allIncidents, new DangerLevelComparator());//display incidents sorted by danger level
             } catch (InterruptedException | ExecutionException e) {
                 // Handle exceptions
+                Toast.makeText(requireContext(),getResources().getString(R.string.error_occured),Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "Error occurred while fetching incidents for emergency: " + emergency.getName(), e);
             }
         });

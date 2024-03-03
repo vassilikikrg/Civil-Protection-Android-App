@@ -159,7 +159,7 @@ public class StatsFragment extends Fragment {
                         }
                         setupBarChart(monthCounts);
                     } else {
-                        Toast.makeText(getContext(), "Failed to load incidents", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getResources().getString(R.string.failed_load_incidents), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

@@ -64,7 +64,7 @@ public class SignUpActivity extends AppCompatActivity {
                 if (!email.isEmpty() && !password.isEmpty() && !name.isEmpty() && !surname.isEmpty() && !username.isEmpty()) {
                     signUpUser(email, password, name, surname, username, selectedRole);
                 } else {
-                    Toast.makeText(SignUpActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignUpActivity.this, getResources().getString(R.string.fill_in_all_fields), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -102,11 +102,11 @@ public class SignUpActivity extends AppCompatActivity {
                                     })
                                     .addOnFailureListener(e -> {
                                         // Handle errors while adding user data to Firestore
-                                        Toast.makeText(SignUpActivity.this, "Failed to add user data to Firestore", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(SignUpActivity.this, getResources().getString(R.string.failed_sign_up), Toast.LENGTH_SHORT).show();
                                     });
                         } else {
                             // If sign up fails, display a message to the user.
-                            Toast.makeText(SignUpActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignUpActivity.this, getResources().getString(R.string.failed_sign_up), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

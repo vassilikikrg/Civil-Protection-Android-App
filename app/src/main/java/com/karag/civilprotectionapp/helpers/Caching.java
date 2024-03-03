@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -41,17 +42,24 @@ public class Caching {
         SharedPreferences.Editor editor = preferences.edit();
         Set<String> incidentIdSet = preferences.getStringSet(INCIDENT_ID_SET_KEY, new HashSet<>());
         long currentTime = System.currentTimeMillis();
-        for (String incidentId : incidentIdSet) {
+
+        // Create an iterator to safely remove elements
+        Iterator<String> iterator = incidentIdSet.iterator();
+        while (iterator.hasNext()) {
+            String incidentId = iterator.next();
             long incidentTimestamp = preferences.getLong(incidentId, -1);
             if (incidentTimestamp != -1 && (currentTime - incidentTimestamp) > (24 * 60 * 60 * 1000)) {
                 // Remove the incident from cache
                 editor.remove(incidentId);
-                incidentIdSet.remove(incidentId);
+                iterator.remove(); // Safely remove the element from the set
             }
         }
+
+        // Update the set in SharedPreferences
         editor.putStringSet(INCIDENT_ID_SET_KEY, incidentIdSet);
         editor.apply();
     }
+
 
     public static List<String> getStoredIncidentIds(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(INCIDENTS_CACHE_PREF, Context.MODE_PRIVATE);

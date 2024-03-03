@@ -34,7 +34,6 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
     private List<CompositeIncident> compositeIncidents;
     private Context myContext;
     private FirebaseFirestore db;
-    private static FirebaseStorage storage;
     private List<Emergency> emergencies;
     // Constructor
     public PendingCasesAdapter(List<Emergency> emergencies,List<CompositeIncident> compositeIncidents, Context myContext) {

@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (!email.isEmpty() && !password.isEmpty()) {
                     loginUser(email, password);
                 } else {
-                    Toast.makeText(LoginActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getResources().getString(R.string.fill_in_all_fields), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
                         startMenu(userId);
                     } else {
                         // If login fails, display a message to the user.
-                        Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, getResources().getString(R.string.auth_failed), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
