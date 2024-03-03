@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -25,6 +26,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -50,10 +53,7 @@ public class NewIncidentFragment extends Fragment {
 
     private List<ApprovedIncident> incidents;
     private IncidentAdapter incidentAdapter;
-    //private Map<String, String> userMap; // Map to store userId and username
-    private Location userLocation;
-    private static final double MAX_DISTANCE = 10000; // Maximum distance in meters (e.g., 10 kilometers)
-    private static final int REQUEST_CODE_PERMISSIONS = 101;
+    private FusedLocationProviderClient fusedLocationClient;
     private final String[] permissions = {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -62,29 +62,24 @@ public class NewIncidentFragment extends Fragment {
     };
     private ActivityResultContracts.RequestMultiplePermissions multiplePermissionsContract;
     private ActivityResultLauncher<String[]> multiplePermissionLauncher;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
         //Permission dialog
-        if(arePermissionsGranted(permissions)){
+        if (arePermissionsGranted(permissions)) {
             startLocationService();
+            // Fetch incidents and update adapter
             incidents = new ArrayList<>();
-            List<String> incidentIds = Caching.getStoredIncidentIds(requireContext());
-            // userMap = new HashMap<>();
-            fetchIncidentsFromFirestore(incidentIds); // Fetch incidents after fetching usernames
+            fetchIncidentsFromFirestore();
             incidentAdapter = new IncidentAdapter(incidents);
-        }else{
-        multiplePermissionsContract = new ActivityResultContracts.RequestMultiplePermissions();
-        multiplePermissionLauncher = registerForActivityResult(multiplePermissionsContract, isGranted -> {
-            Log.d("PERMISSIONS", "Launcher result: " + isGranted.toString());
-            /*if (isGranted.containsValue(false)) {
-                Log.d("PERMISSIONS", "At least one of the permissions was not granted, launching again...");
-                multiplePermissionLauncher.launch(permissions);
-            }*/
-        });
-
-        requestPermissions(multiplePermissionLauncher);
+        } else {
+            multiplePermissionsContract = new ActivityResultContracts.RequestMultiplePermissions();
+            multiplePermissionLauncher = registerForActivityResult(multiplePermissionsContract, isGranted -> {
+                Log.d("PERMISSIONS", "Launcher result: " + isGranted.toString());
+            });
+            requestPermissions(multiplePermissionLauncher);
         }
     }
 
@@ -92,6 +87,7 @@ public class NewIncidentFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_new_incident, container, false);
+        // Set-up recycler view
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(incidentAdapter);
@@ -101,9 +97,6 @@ public class NewIncidentFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        /*if(arePermissionsGranted(permissions)){
-            startLocationService();
-        }*/
     }
 
 
@@ -121,29 +114,7 @@ public class NewIncidentFragment extends Fragment {
         }
         return false;
     }
-
-    private void startLocationService() {
-        Intent serviceIntent = new Intent(requireContext(), LocationService.class);
-        ContextCompat.startForegroundService(requireContext(), serviceIntent);
-    }
-
-
-    // Register the permissions callback, which handles the user's response to the
-    // system permissions dialog. Save the return value, an instance of
-    // ActivityResultLauncher, as an instance variable.
-    private ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    // Permission is granted. Continue the action or workflow in your
-                    // app.
-                } else {
-                    // Explain to the user that the feature is unavailable because the
-                    // feature requires a permission that the user has denied. At the
-                    // same time, respect the user's decision. Don't link to system
-                    // settings in an effort to convince the user to change their
-                    // decision.
-                }
-            });
+    //Request all permissions that are not granted from permissions array
     private void requestPermissions(ActivityResultLauncher<String[]> multiplePermissionLauncher) {
         if (!arePermissionsGranted(permissions)) {
             Log.d("PERMISSIONS", "Launching multiple contract permission launcher for ALL required permissions");
@@ -152,53 +123,50 @@ public class NewIncidentFragment extends Fragment {
             Log.d("PERMISSIONS", "All permissions are already granted");
         }
     }
-
-    // Fetch incidents from Firestore
-    /*private void fetchIncidentsFromFirestore() {
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        firestore.collection("approved_incidents")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            // Parse incident data and add it to the list
-                            if (isClosetoUser(document.getDouble("latitude"), document.getDouble("longitude"), userLocation.getLatitude(), userLocation.getLongitude(), document.getDouble("range")))
-                            {
-                                ApprovedIncident incident = parseIncident(document);
-                                incidents.add(incident);
-                            }
-                        }
-                        incidentAdapter.notifyDataSetChanged();
-                    } else {
-                        Log.e("NewIncidentFragment", "Error fetching incidents", task.getException());
-                    }
-                });
-    }*/
-
-    private void fetchIncidentsFromFirestore(List<String> incidentIds) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        for (String incidentId : incidentIds) {
-            db.collection("approved_incidents")
-                    .document(incidentId)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        // Check if the document exists
-                        if (documentSnapshot.exists()) {
-                            // Convert the document data to your Incident model
-                            ApprovedIncident incident = parseIncident(documentSnapshot);
-                            incidents.add(incident);
-
-                        } else {
-                            Log.d(TAG, "No such document with ID: " + incidentId);
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "Error fetching incident with ID: " + incidentId, e);
-                    });
-        }
-        incidentAdapter.notifyDataSetChanged();
+    private void startLocationService() {
+        Intent serviceIntent = new Intent(requireContext(), LocationService.class);
+        ContextCompat.startForegroundService(requireContext(), serviceIntent);
     }
 
+    // Fetch incidents from Firestore
+    private void fetchIncidentsFromFirestore() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(requireContext(), getResources().getString(R.string.don_t_have_location_permission),Toast.LENGTH_SHORT).show();
+            return;
+        }
+        fusedLocationClient
+                .getLastLocation()
+                .addOnSuccessListener(location -> {
+                    if (location != null) {
+                        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                        firestore.collection("approved_incidents")
+                                .get()
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            // Parse incident data and add it to the list
+                                            if (isClosetoUser(document.getDouble("latitude"), document.getDouble("longitude"), location.getLatitude(), location.getLongitude(), document.getDouble("range"))) {
+                                                ApprovedIncident incident = parseIncident(document);
+                                                incidents.add(incident);
+                                            }
+                                        }
+                                        incidentAdapter.notifyDataSetChanged();
+                                    } else {
+                                        Log.e("NewIncidentFragment", "Error fetching incidents", task.getException());
+                                    }
+                                });
+                    }
+                    else{
+                        Toast.makeText(requireContext(), getResources().getString(R.string.can_t_access_location),Toast.LENGTH_LONG).show();
+                    }
+                });
+
+    }
+
+    //Check if incident is close to user
+    private boolean isClosetoUser(Double latitude, Double longitude, double latitude1, double longitude1, Double range) {
+        return IncidentManager.calculateDistance(latitude, longitude, latitude1, longitude1) <=( range / 2 );
+    }
     // Parse Firestore document to Incident object
     private ApprovedIncident parseIncident(DocumentSnapshot document) {
         return ApprovedIncident.documentToIncident(document, requireContext());
