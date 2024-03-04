@@ -118,7 +118,7 @@ public class LocationService extends Service implements CloseIncidentsCallback {
                     if (task.isSuccessful()) {
                         List<ApprovedIncident> newIncidents = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            ApprovedIncident incident= ApprovedIncident.documentToIncident(document);
+                            ApprovedIncident incident= ApprovedIncident.documentToIncident(document,getApplicationContext());
                             Double range=incident.getRange();
                             Double maxDistance=range.isNaN()?10:incident.getRange()/2;
                             if (IncidentManager.calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(), incident.getLatitude(), incident.getLongitude()) < maxDistance) {
@@ -145,14 +145,14 @@ public class LocationService extends Service implements CloseIncidentsCallback {
             // There are close incidents, create a notification
             if(newCloseIncidents.size()==1) {
                 ApprovedIncident incident=newCloseIncidents.get(0);
-                String title=getResources().getString(R.string.sos_there_is)+incident.getEmergencyType().toLowerCase()+getResources().getString(R.string.near_your_area);
-                String message=getResources().getString(R.string.first_reported_at)+newCloseIncidents.get(0).formatDateTime()+"\n"+getResources().getString(R.string.near_the_area)+incident.getLocationName();
+                String title=getResources().getString(R.string.sos_there_is)+" "+incident.getEmergencyType().toLowerCase()+" "+getResources().getString(R.string.near_your_area);
+                String message=getResources().getString(R.string.first_reported_at)+incident.formatDateTime()+"\n"+getResources().getString(R.string.near_the_area)+" "+incident.getLocationName();
                 NotificationHelper.createNotification(getApplicationContext(),title,message);
             }
             else if (newCloseIncidents.size()>1){
                 for(ApprovedIncident incident:newCloseIncidents){
-                    String title=getResources().getString(R.string.sos_there_is)+incident.getEmergencyType().toLowerCase()+getResources().getString(R.string.near_your_area);
-                    String message=getResources().getString(R.string.first_reported_at)+newCloseIncidents.get(0).formatDateTime()+"\n"+getResources().getString(R.string.near_the_area)+incident.getLocationName();
+                    String title=getResources().getString(R.string.sos_there_is)+" "+incident.getEmergencyType().toLowerCase()+" "+getResources().getString(R.string.near_your_area);
+                    String message=getResources().getString(R.string.first_reported_at)+incident.formatDateTime()+"\n"+getResources().getString(R.string.near_the_area)+" "+incident.getLocationName();
                     NotificationHelper.createNotification(getApplicationContext(),title,message);
                     }
                 }
