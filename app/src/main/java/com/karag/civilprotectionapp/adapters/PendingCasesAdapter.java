@@ -16,9 +16,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.denzcoskun.imageslider.ImageSlider;
 import com.denzcoskun.imageslider.models.SlideModel;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.karag.civilprotectionapp.R;
+import com.karag.civilprotectionapp.helpers.NetworkUtils;
 import com.karag.civilprotectionapp.helpers.Translator;
 import com.karag.civilprotectionapp.models.ApprovedIncident;
 import com.karag.civilprotectionapp.models.CompositeIncident;
@@ -126,6 +128,7 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
     }
 
     private void onCheckButtonClick(CompositeIncident compositeIncident) {
+        if(NetworkUtils.isInternetAvailable(myContext)) {
         // Access the list of incidents inside the composite incident
         List<MyIncident> incidents = compositeIncident.getRelatedReports();
 
@@ -141,10 +144,14 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
         }
         // Notify the adapter that the dataset has changed
         notifyDataSetChanged();
-        uploadIncidentToFirebase(compositeIncident);
+        uploadIncidentToFirebase(compositeIncident);}
+        else{
+            Toast.makeText(myContext,myContext.getResources().getString(R.string.no_internet),Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void onDiscardButtonClick(CompositeIncident compositeIncident) {
+        if(NetworkUtils.isInternetAvailable(myContext)) {
         // Access the list of incidents inside the composite incident
         List<MyIncident> incidents = compositeIncident.getRelatedReports();
 
@@ -159,7 +166,10 @@ public class PendingCasesAdapter extends RecyclerView.Adapter<PendingCasesAdapte
             compositeIncidents.remove(compositeIncident);
         }
         // Notify the adapter that the dataset has changed
-        notifyDataSetChanged();
+        notifyDataSetChanged();}
+        else {
+            Toast.makeText(myContext,myContext.getResources().getString(R.string.no_internet),Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void uploadIncidentToFirebase(CompositeIncident compositeIncident) {
