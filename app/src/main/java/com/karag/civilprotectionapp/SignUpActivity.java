@@ -60,9 +60,12 @@ public class SignUpActivity extends AppCompatActivity {
                 String surname = surnameEditText.getText().toString().trim();
                 String username = usernameEditText.getText().toString().trim();
                 String selectedRole = roleSpinner.getSelectedItem().toString();
-
                 if (!email.isEmpty() && !password.isEmpty() && !name.isEmpty() && !surname.isEmpty() && !username.isEmpty()) {
-                    signUpUser(email, password, name, surname, username, selectedRole);
+                    if(selectedRole.equals(getResources().getString(R.string.citizen))){
+                        signUpUser(email, password, name, surname, username, "Citizen");
+                    }else{
+                        signUpUser(email, password, name, surname, username, "Employee");
+                    }
                 } else {
                     Toast.makeText(SignUpActivity.this, getResources().getString(R.string.fill_in_all_fields), Toast.LENGTH_SHORT).show();
                 }
@@ -99,6 +102,8 @@ public class SignUpActivity extends AppCompatActivity {
                                         // User data added successfully
                                         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                                         finish();
+                                        Toast.makeText(SignUpActivity.this, getResources().getString(R.string.signed_up_successful), Toast.LENGTH_LONG).show();
+
                                     })
                                     .addOnFailureListener(e -> {
                                         // Handle errors while adding user data to Firestore

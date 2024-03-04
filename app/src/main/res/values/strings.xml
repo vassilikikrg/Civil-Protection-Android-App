@@ -55,4 +55,5 @@
     <string name="reported">Reported:</string>
     <string name="sos_there_are">SOS! There are</string>
     <string name="new_emergency_incidents_in_your_area">new emergency incidents in your area!</string>
+    <string name="signed_up_successful">The registration process is completed successfully!</string>
 </resources>

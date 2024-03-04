@@ -34,7 +34,8 @@ app:cardCornerRadius="8dp">
                 android:text="@string/emergency"
                 android:textAlignment="textEnd"
                 android:textSize="14sp"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                android:minWidth="112dp"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"

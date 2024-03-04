@@ -157,6 +157,7 @@ public class AddEmergencyFragment extends Fragment {
     private String uploadImage(Date date){
         // Show progress bar
         progressBar.setVisibility(View.VISIBLE);
+        reportBtn.setEnabled(false);
         SimpleDateFormat formatter=new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
         String filename= formatter.format(date);
         String uid=auth.getCurrentUser().getUid();
@@ -172,10 +173,12 @@ public class AddEmergencyFragment extends Fragment {
                     imageEmergency.setImageURI(null);
                     imageEmergency.setBackgroundResource(R.drawable.incident);
                     progressBar.setVisibility(View.GONE);
+                    reportBtn.setEnabled(true);
                 })
                 .addOnFailureListener(e -> {
                     // Image upload failure
                     progressBar.setVisibility(View.GONE); // Hide progress bar
+                    reportBtn.setEnabled(true);
                 });
         return filename;
     }

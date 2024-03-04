@@ -40,6 +40,7 @@ import com.karag.civilprotectionapp.adapters.IncidentAdapter;
 import com.karag.civilprotectionapp.danger_assessment.IncidentManager;
 import com.karag.civilprotectionapp.helpers.Caching;
 import com.karag.civilprotectionapp.models.ApprovedIncident;
+import com.karag.civilprotectionapp.models.CompositeIncident;
 import com.karag.civilprotectionapp.models.Emergency;
 import com.karag.civilprotectionapp.models.Incident;
 import com.karag.civilprotectionapp.services.LocationService;
@@ -48,6 +49,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -175,6 +177,8 @@ public class NewIncidentFragment extends Fragment {
                                                     incidents.add(incident);
                                                 }
                                             }
+                                            Collections.sort(incidents, new NewIncidentFragment.DateComparator());//display incidents sorted by date
+
                                             // Notify the adapter that the data set has changed
                                             incidentAdapter.notifyDataSetChanged();
                                         }
@@ -209,5 +213,14 @@ public class NewIncidentFragment extends Fragment {
                         }
                     }
                 });
+    }
+
+    // Custom comparator for sorting by date in descending order
+    private static class DateComparator implements Comparator<ApprovedIncident> {
+        @Override
+        public int compare(ApprovedIncident incident1, ApprovedIncident incident2) {
+            // Sort in descending order by date
+            return incident2.getDatetime().compareTo(incident1.getDatetime());
+        }
     }
 }
