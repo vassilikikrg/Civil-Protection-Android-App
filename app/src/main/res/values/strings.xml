@@ -50,4 +50,9 @@
     <string name="no_image">No image selected</string>
     <string name="no_incidents">Thankfully, there are no incidents reported</string>
     <string name="no_incidents_near">Thankfully,there are no incidents near you!</string>
+    <string name="default_notification">Real-time emergency alert is on</string>
+    <string name="one_new_emergency">SOS! There is a new emergency incident in your area</string>
+    <string name="reported">Reported:</string>
+    <string name="sos_there_are">SOS! There are</string>
+    <string name="new_emergency_incidents_in_your_area">new emergency incidents in your area!</string>
 </resources>

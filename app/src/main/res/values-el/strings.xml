@@ -50,4 +50,9 @@
     <string name="no_image">Δεν επιλέχθηκε φωτογραφία</string>
     <string name="no_incidents">Ευτυχώς, δεν έχουν γίνει πρόσφατες αναφορές</string>
     <string name="no_incidents_near">Ευτυχώς, δεν υπάρχουν αναφορές έκτακτης ανάγκης κοντά σας!</string>
+    <string name="default_notification">Η ειδοποίηση για περιστατικά έκτακτης ανάγκης είναι ενεργοποιημένη</string>
+    <string name="one_new_emergency">ΣΟΣ! Υπάρχει ένα νέο περιστατικό έκτακτης ανάγκης στην περιοχή σας.</string>
+    <string name="reported">Υποβλήθηκε:</string>
+    <string name="sos_there_are">"ΣΟΣ! Υπάρχουν "</string>
+    <string name="new_emergency_incidents_in_your_area">νέα περιστατικά έκτακτης ανάγκης στην περιοχή σας !</string>
 </resources>
