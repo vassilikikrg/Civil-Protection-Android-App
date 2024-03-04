@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -39,6 +40,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.karag.civilprotectionapp.adapters.IncidentAdapter;
 import com.karag.civilprotectionapp.danger_assessment.IncidentManager;
 import com.karag.civilprotectionapp.helpers.Caching;
+import com.karag.civilprotectionapp.helpers.NetworkUtils;
 import com.karag.civilprotectionapp.models.ApprovedIncident;
 import com.karag.civilprotectionapp.models.CompositeIncident;
 import com.karag.civilprotectionapp.models.Emergency;
@@ -100,6 +102,9 @@ public class NewIncidentFragment extends Fragment {
                 }
             });
             requestPermissions(multiplePermissionLauncher);
+        }
+        if(!NetworkUtils.isInternetAvailable(requireContext())){
+            Snackbar.make(requireActivity().findViewById(android.R.id.content), getResources().getString(R.string.no_internet),Snackbar.LENGTH_LONG).show();
         }
     }
 

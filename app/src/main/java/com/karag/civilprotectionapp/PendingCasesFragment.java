@@ -15,9 +15,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.karag.civilprotectionapp.adapters.PendingCasesAdapter;
+import com.karag.civilprotectionapp.helpers.NetworkUtils;
 import com.karag.civilprotectionapp.models.CompositeIncident;
 import com.karag.civilprotectionapp.danger_assessment.IncidentManager;
 import com.karag.civilprotectionapp.models.Emergency;
@@ -42,6 +44,9 @@ public class PendingCasesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(!NetworkUtils.isInternetAvailable(requireContext())) {
+            Snackbar.make(requireActivity().findViewById(android.R.id.content), getResources().getString(R.string.no_internet),Snackbar.LENGTH_LONG).show();
+        }
         allIncidents = new ArrayList<>();
         fetchTypeEmergency();
     }

@@ -56,4 +56,5 @@
     <string name="sos_there_are">"ΣΟΣ! Υπάρχουν "</string>
     <string name="new_emergency_incidents_in_your_area">νέα περιστατικά έκτακτης ανάγκης στην περιοχή σας !</string>
     <string name="signed_up_successful">Η εγγραφή σας ολοκληρώθηκε επιτυχώς!</string>
+    <string name="no_internet">Δεν υπάρχει σύνδεση στο διαδίκτυο</string>
 </resources>

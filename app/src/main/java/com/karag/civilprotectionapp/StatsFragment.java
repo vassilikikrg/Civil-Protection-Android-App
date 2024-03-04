@@ -3,7 +3,10 @@ package com.karag.civilprotectionapp;
 import static android.content.ContentValues.TAG;
 
 import android.animation.ValueAnimator;
+import android.content.Context;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -27,6 +30,7 @@ import com.github.mikephil.charting.data.PieEntry;
 
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.AggregateQuery;
 import com.google.firebase.firestore.AggregateQuerySnapshot;
 import com.google.firebase.firestore.AggregateSource;
@@ -34,8 +38,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.karag.civilprotectionapp.helpers.NetworkUtils;;
 
+import java.net.NetworkInterface;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,60 +69,64 @@ public class StatsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_stats, container, false);
-        textViewOverallStats=view.findViewById(R.id.textViewsOverallStatsNumber);
-        barChart=view.findViewById(R.id.barChart);
-        // Stats for incidents filtered by emergency type - Pie Chart set up
-        PieChart pieChart = view.findViewById(R.id.pieChart);
-        ArrayList<PieEntry> entries = new ArrayList<>();
-        //get emergency types from firestore
-        firestore.collection("emergencies")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        emergenciesList = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            emergenciesList.add(document.getString("Name"));
-                        }
-                        // Iterate over each type of emergency
-                        CollectionReference collection = firestore.collection("incidents");
-                        for (String emergency : emergenciesList) {
-                            Query query = collection.whereEqualTo("emergencyType", emergency);
-                            AggregateQuery countQuery = query.count();
-                            countQuery.get(AggregateSource.SERVER).addOnCompleteListener(innerTask -> {
-                                if (innerTask.isSuccessful()) {
-                                    // Count fetched successfully
-                                    AggregateQuerySnapshot snapshot = innerTask.getResult();
-                                    Log.d(TAG, "Count: " + snapshot.getCount());
-                                    long count = snapshot.getCount();
-                                    entries.add(new PieEntry(count, emergency));
-                                    // Update the chart when all counts are fetched
-                                    if (entries.size() == emergenciesList.size()) {
-                                        setUpPieChart(entries, pieChart);
+        if(NetworkUtils.isInternetAvailable(requireContext())) {
+            textViewOverallStats = view.findViewById(R.id.textViewsOverallStatsNumber);
+            barChart = view.findViewById(R.id.barChart);
+            // Stats for incidents filtered by emergency type - Pie Chart set up
+            PieChart pieChart = view.findViewById(R.id.pieChart);
+            ArrayList<PieEntry> entries = new ArrayList<>();
+            //get emergency types from firestore
+            firestore.collection("emergencies")
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            emergenciesList = new ArrayList<>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                emergenciesList.add(document.getString("Name"));
+                            }
+                            // Iterate over each type of emergency
+                            CollectionReference collection = firestore.collection("incidents");
+                            for (String emergency : emergenciesList) {
+                                Query query = collection.whereEqualTo("emergencyType", emergency);
+                                AggregateQuery countQuery = query.count();
+                                countQuery.get(AggregateSource.SERVER).addOnCompleteListener(innerTask -> {
+                                    if (innerTask.isSuccessful()) {
+                                        // Count fetched successfully
+                                        AggregateQuerySnapshot snapshot = innerTask.getResult();
+                                        Log.d(TAG, "Count: " + snapshot.getCount());
+                                        long count = snapshot.getCount();
+                                        entries.add(new PieEntry(count, emergency));
+                                        // Update the chart when all counts are fetched
+                                        if (entries.size() == emergenciesList.size()) {
+                                            setUpPieChart(entries, pieChart);
+                                        }
+                                    } else {
+                                        Log.d(TAG, "Count failed: ", innerTask.getException());
                                     }
-                                } else {
-                                    Log.d(TAG, "Count failed: ", innerTask.getException());
-                                }
-                            });
+                                });
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting emergency types.", task.getException());
                         }
-                    } else {
-                        Log.w(TAG, "Error getting emergency types.", task.getException());
-                    }
-                });
-        // Stats for incidents reported per month - Bar Chart set up
-        loadIncidentsMonth();
-        // Stats for total number of incidents
-        Query query = firestore.collection("incidents");
-        AggregateQuery countQuery = query.count();
-        countQuery.get(AggregateSource.SERVER).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                // Count fetched successfully
-                AggregateQuerySnapshot snapshot = task.getResult();
-                startCountAnimation(textViewOverallStats, (int) snapshot.getCount());
-            } else {
-                Log.d(TAG, "Count failed: ", task.getException());
-            }
-        });
-
+                    });
+            // Stats for incidents reported per month - Bar Chart set up
+            loadIncidentsMonth();
+            // Stats for total number of incidents
+            Query query = firestore.collection("incidents");
+            AggregateQuery countQuery = query.count();
+            countQuery.get(AggregateSource.SERVER).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    // Count fetched successfully
+                    AggregateQuerySnapshot snapshot = task.getResult();
+                    startCountAnimation(textViewOverallStats, (int) snapshot.getCount());
+                } else {
+                    Log.d(TAG, "Count failed: ", task.getException());
+                }
+            });
+        }
+        else{
+            Snackbar.make(requireActivity().findViewById(android.R.id.content), getResources().getString(R.string.no_internet),Snackbar.LENGTH_LONG).show();
+        }
         return view;
     }
 

@@ -23,11 +23,13 @@ import androidx.fragment.app.Fragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.karag.civilprotectionapp.helpers.NetworkUtils;
 import com.karag.civilprotectionapp.helpers.Translator;
 import com.karag.civilprotectionapp.models.Emergency;
 
@@ -183,7 +185,9 @@ public class AddEmergencyFragment extends Fragment {
         return filename;
     }
     private void uploadIncident(){
-        // Check if permission for location is not granted
+        if(NetworkUtils.isInternetAvailable(requireContext())) {
+
+            // Check if permission for location is not granted
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Request permission from the user
@@ -217,7 +221,10 @@ public class AddEmergencyFragment extends Fragment {
             else {
                 Toast.makeText(requireContext(), getResources().getString(R.string.don_t_have_location_permission), Toast.LENGTH_SHORT).show();
             }
-        });
+        });}else {
+            Snackbar.make(requireActivity().findViewById(android.R.id.content), getResources().getString(R.string.no_internet),Snackbar.LENGTH_LONG).show();
+
+        }
     }
     private void uploadIncidentToFirebase(String emergencyType, String description, Date dateTime, double latitude, double longitude,String imageFilename,String userId) {
         Map<String, Object> incident = new HashMap<>();
