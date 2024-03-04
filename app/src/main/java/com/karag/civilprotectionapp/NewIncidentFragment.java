@@ -77,17 +77,25 @@ public class NewIncidentFragment extends Fragment {
         super.onCreate(savedInstanceState);
         fetchTypeEmergency(); // fetch emergencies
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
+        incidents = new ArrayList<>();
+        incidentAdapter = new IncidentAdapter(emergenciesList,incidents,requireContext());
+
         //Permission dialog
         if (arePermissionsGranted(permissions)) {
             startLocationService();
             // Fetch incidents and update adapter
-            incidents = new ArrayList<>();
             fetchIncidentsFromFirestore();
-            incidentAdapter = new IncidentAdapter(emergenciesList,incidents,requireContext());
+            //incidentAdapter = new IncidentAdapter(emergenciesList,incidents,requireContext());
         } else {
             multiplePermissionsContract = new ActivityResultContracts.RequestMultiplePermissions();
             multiplePermissionLauncher = registerForActivityResult(multiplePermissionsContract, isGranted -> {
-                Log.d("PERMISSIONS", "Launcher result: " + isGranted.toString());
+                if (arePermissionsGranted(permissions))
+                {
+                    startLocationService();
+                    // Fetch incidents and update adapter
+                    fetchIncidentsFromFirestore();
+                    //incidentAdapter = new IncidentAdapter(emergenciesList,incidents,requireContext());
+                }
             });
             requestPermissions(multiplePermissionLauncher);
         }
@@ -141,7 +149,7 @@ public class NewIncidentFragment extends Fragment {
     // Fetch incidents from Firestore
     private void fetchIncidentsFromFirestore() {
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(requireContext(), getResources().getString(R.string.don_t_have_location_permission),Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getResources().getString(R.string.don_t_have_location_permission), Toast.LENGTH_SHORT).show();
             return;
         }
         //calculate the timestamp for 24 hours ago
@@ -156,13 +164,10 @@ public class NewIncidentFragment extends Fragment {
                                 .whereGreaterThanOrEqualTo("dateTime", twentyFourHoursAgoDate)
                                 .get()
                                 .addOnCompleteListener(task -> {
-
                                     if (task.isSuccessful()) {
                                         if (task.getResult().isEmpty()) {
-
                                             Log.d("NewIncidentFragment", "No incidents found.");
-
-                                        }else{
+                                        } else {
                                             for (QueryDocumentSnapshot document : task.getResult()) {
                                                 // Parse incident data and add it to the list
                                                 if (isClosetoUser(document.getDouble("latitude"), document.getDouble("longitude"), location.getLatitude(), location.getLongitude(), document.getDouble("range"))) {
@@ -170,19 +175,19 @@ public class NewIncidentFragment extends Fragment {
                                                     incidents.add(incident);
                                                 }
                                             }
+                                            // Notify the adapter that the data set has changed
                                             incidentAdapter.notifyDataSetChanged();
                                         }
                                     } else {
                                         Log.e("NewIncidentFragment", "Error fetching incidents", task.getException());
                                     }
                                 });
-                    }
-                    else{
-                        Toast.makeText(requireContext(), getResources().getString(R.string.can_t_access_location),Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(requireContext(), getResources().getString(R.string.can_t_access_location), Toast.LENGTH_LONG).show();
                     }
                 });
-
     }
+
 
     //Check if incident is close to user
     private boolean isClosetoUser(Double latitude, Double longitude, double latitude1, double longitude1, Double range) {
