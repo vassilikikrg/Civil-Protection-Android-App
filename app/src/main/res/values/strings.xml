@@ -55,7 +55,7 @@
     <string name="reported">Reported:</string>
     <string name="sos_there_is">SOS! There is an alert for</string>
     <string name="sos_there_are">new emergency incidents in your area!</string>
-    <string name="signed_up_successful">SOS! There is</string>
+    <string name="signed_up_successful">The registration completed successfully</string>
     <string name="no_internet">There is no internet connection</string>
     <string name="number_of_incidents">Number of Incidents</string>
     <string name="near_the_area">Near the area of</string>
