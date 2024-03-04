@@ -15,10 +15,10 @@
     <string name="description_emergency">Περιγράψτε την κατάσταση</string>
     <string name="report_button">Αναφορά</string>
     <string name="emergencyTypeQuestion">Τι είδους έκτακτη ανάγκη αντιμετωπίζετε?</string>
-    <string name="stats_per_type">Πλήθος αναφορών ανά τύπο έκτακτης ανάγκης</string>
+    <string name="stats_per_type">Πλήθος συμβάντων κινδύνου ανά τύπο έκτακτης ανάγκης</string>
     <string name="stats_title">Στατιστικά</string>
-    <string name="overall_stats_title">"Πλήθος περιστατικών που έχουν δηλωθεί στην εφαρμογή "</string>
-    <string name="stats_per_month">Πλήθος αναφορών που υποβλήθηκαν τον προηγούμενο μήνα</string>
+    <string name="overall_stats_title">Συνολικός αριθμός συμβάντων κινδύνου που έχουν ενεργοποιηθεί</string>
+    <string name="stats_per_month">Πλήθος συμβάντων κινδύνου ανά μήνα</string>
     <string name="email">Email</string>
     <string name="password">Κωδικός πρόσβασης</string>
     <string name="login">Σύνδεση</string>
@@ -32,7 +32,7 @@
     <string name="pending_incidents">Αναφορές υπό εξέταση</string>
     <string name="area">Περιοχή</string>
     <string name="emergency">Έκτακτη ανάγκη</string>
-    <string name="first_reported_at">"Υποβλήθηκε πρώτα στις: "</string>
+    <string name="first_reported_at">"Αναφέρθηκε πρώτη φορά στις: "</string>
     <string name="reported_by">Πλήθος αναφορών:</string>
     <string name="danger_level">Βαθμός επικινδυνότητας:</string>
     <string name="approve">Έγκριση</string>
@@ -53,9 +53,17 @@
     <string name="default_notification">Η ειδοποίηση για περιστατικά έκτακτης ανάγκης είναι ενεργοποιημένη</string>
     <string name="one_new_emergency">ΣΟΣ! Υπάρχει ένα νέο περιστατικό έκτακτης ανάγκης στην περιοχή σας.</string>
     <string name="reported">Υποβλήθηκε:</string>
-    <string name="sos_there_are">"ΣΟΣ! Υπάρχουν "</string>
-    <string name="new_emergency_incidents_in_your_area">νέα περιστατικά έκτακτης ανάγκης στην περιοχή σας !</string>
+    <string name="sos_there_is">"ΣΟΣ! Υπάρχει αναφορά για "</string>
+    <string name="sos_there_are">νέα περιστατικά έκτακτης ανάγκης στην περιοχή σας !</string>
     <string name="signed_up_successful">Η εγγραφή σας ολοκληρώθηκε επιτυχώς!</string>
     <string name="no_internet">Δεν υπάρχει σύνδεση στο διαδίκτυο</string>
     <string name="number_of_incidents">Αριθμός περιστατικών</string>
+    <string name="near_the_area">"Γύρω από την περιοχή "</string>
+    <string name="earthquake">σεισμός</string>
+    <string name="fire">φωτιά</string>
+    <string name="flood">πλυμμήρα</string>
+    <string name="heatwave">καύσωνας</string>
+    <string name="hurricane">τυφώνας</string>
+    <string name="tsunami">τσουνάμι</string>
+    <string name="near_your_area">" κοντά στην περιοχή σας."</string>
 </resources>

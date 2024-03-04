@@ -15,10 +15,10 @@
     <string name="description_emergency">Describe the emergency</string>
     <string name="report_button">Report</string>
     <string name="emergencyTypeQuestion">What\'s the emergency?</string>
-    <string name="stats_per_type">Number of incidents reported by emergency type</string>
+    <string name="stats_per_type">Number of alerts by emergency type</string>
     <string name="stats_title">Statistics</string>
-    <string name="overall_stats_title" >Total number of incidents reported in the app</string>
-    <string name="stats_per_month">Number of incidents reported per month</string>
+    <string name="overall_stats_title" >Total number of alerts triggered</string>
+    <string name="stats_per_month">Number of alerts per month</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
@@ -53,9 +53,17 @@
     <string name="default_notification">Real-time emergency alert is on</string>
     <string name="one_new_emergency">SOS! There is a new emergency incident in your area</string>
     <string name="reported">Reported:</string>
-    <string name="sos_there_are">SOS! There are</string>
-    <string name="new_emergency_incidents_in_your_area">new emergency incidents in your area!</string>
-    <string name="signed_up_successful">The registration process is completed successfully!</string>
+    <string name="sos_there_is">SOS! There is an alert for</string>
+    <string name="sos_there_are">new emergency incidents in your area!</string>
+    <string name="signed_up_successful">SOS! There is</string>
     <string name="no_internet">There is no internet connection</string>
     <string name="number_of_incidents">Number of Incidents</string>
+    <string name="near_the_area">Near the area of</string>
+    <string name="earthquake">earthquake</string>
+    <string name="fire">fire</string>
+    <string name="flood">flood</string>
+    <string name="heatwave">heatwave</string>
+    <string name="hurricane">hurricane</string>
+    <string name="tsunami">tsunami</string>
+    <string name="near_your_area"> near your area</string>
 </resources>

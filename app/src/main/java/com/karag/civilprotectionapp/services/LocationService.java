@@ -27,6 +27,7 @@ import com.karag.civilprotectionapp.R;
 import com.karag.civilprotectionapp.danger_assessment.IncidentManager;
 import com.karag.civilprotectionapp.helpers.Caching;
 import com.karag.civilprotectionapp.helpers.NotificationHelper;
+import com.karag.civilprotectionapp.helpers.Translator;
 import com.karag.civilprotectionapp.models.ApprovedIncident;
 
 import java.util.ArrayList;
@@ -143,15 +144,21 @@ public class LocationService extends Service implements CloseIncidentsCallback {
         if (!newCloseIncidents.isEmpty()) {
             // There are close incidents, create a notification
             if(newCloseIncidents.size()==1) {
-                NotificationHelper.createNotification(getApplicationContext(), getResources().getString(R.string.one_new_emergency),"" );
+                ApprovedIncident incident=newCloseIncidents.get(0);
+                String title=getResources().getString(R.string.sos_there_is)+incident.getEmergencyType().toLowerCase()+getResources().getString(R.string.near_your_area);
+                String message=getResources().getString(R.string.first_reported_at)+newCloseIncidents.get(0).formatDateTime()+"\n"+getResources().getString(R.string.near_the_area)+incident.getLocationName();
+                NotificationHelper.createNotification(getApplicationContext(),title,message);
             }
             else if (newCloseIncidents.size()>1){
-                    NotificationHelper.createNotification(getApplicationContext(),getResources().getString(R.string.sos_there_are)+newCloseIncidents.size()+getResources().getString(R.string.new_emergency_incidents_in_your_area),"");
+                for(ApprovedIncident incident:newCloseIncidents){
+                    String title=getResources().getString(R.string.sos_there_is)+incident.getEmergencyType().toLowerCase()+getResources().getString(R.string.near_your_area);
+                    String message=getResources().getString(R.string.first_reported_at)+newCloseIncidents.get(0).formatDateTime()+"\n"+getResources().getString(R.string.near_the_area)+incident.getLocationName();
+                    NotificationHelper.createNotification(getApplicationContext(),title,message);
+                    }
+                }
             }
             Caching.removeExpiredIncidentsFromCache(this);
         }
-
-    }
     public static String getTimeAgo(Date date) {
         long timeDifference = System.currentTimeMillis() - date.getTime();
 

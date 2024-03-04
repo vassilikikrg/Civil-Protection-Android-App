@@ -3,4 +3,12 @@
         <item>@string/citizen</item>
         <item>@string/employee</item>
     </string-array>
+    <string-array name="emergency_array">
+        <item>@string/earthquake</item>
+        <item>@string/fire</item>
+        <item>@string/flood</item>
+        <item>@string/heatwave</item>
+        <item>@string/hurricane</item>
+        <item>@string/tsunami</item>
+    </string-array>
 </resources>

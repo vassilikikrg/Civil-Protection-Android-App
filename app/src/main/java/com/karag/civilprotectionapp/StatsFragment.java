@@ -90,7 +90,7 @@ public class StatsFragment extends Fragment {
                                 emergenciesList.add(Emergency.documentToEmergency(document));
                             }
                             // Iterate over each type of emergency to count how many incidents have been submitted
-                            CollectionReference collection = firestore.collection("incidents");
+                            CollectionReference collection = firestore.collection("approved_incidents");
                             for (Emergency emergency : emergenciesList) {
                                 Query query = collection.whereEqualTo("emergencyType", emergency.getName());
                                 AggregateQuery countQuery = query.count();
@@ -118,7 +118,7 @@ public class StatsFragment extends Fragment {
 
             loadIncidentsMonth();
             // Stats for total number of incidents
-            Query query = firestore.collection("incidents");
+            Query query = firestore.collection("approved_incidents");
             AggregateQuery countQuery = query.count();
             countQuery.get(AggregateSource.SERVER).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
@@ -159,7 +159,7 @@ public class StatsFragment extends Fragment {
         animator.start();
     }
     private void loadIncidentsMonth() {
-        firestore.collection("incidents")
+        firestore.collection("approved_incidents")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
