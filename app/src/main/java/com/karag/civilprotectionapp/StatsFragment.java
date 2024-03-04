@@ -39,7 +39,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.karag.civilprotectionapp.helpers.NetworkUtils;;
+import com.karag.civilprotectionapp.helpers.NetworkUtils;
+import com.karag.civilprotectionapp.helpers.Translator;
+import com.karag.civilprotectionapp.models.Emergency;;
 
 import java.net.NetworkInterface;
 import java.text.DateFormatSymbols;
@@ -54,7 +56,7 @@ import java.util.Map;
 public class StatsFragment extends Fragment {
     FirebaseFirestore firestore;
     TextView textViewOverallStats;
-    List<String> emergenciesList;
+    List<Emergency> emergenciesList;
     BarChart barChart;
     public StatsFragment() {
         // Required empty public constructor
@@ -70,9 +72,12 @@ public class StatsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_stats, container, false);
         if(NetworkUtils.isInternetAvailable(requireContext())) {
+            //find ui items
             textViewOverallStats = view.findViewById(R.id.textViewsOverallStatsNumber);
             barChart = view.findViewById(R.id.barChart);
+
             // Stats for incidents filtered by emergency type - Pie Chart set up
+
             PieChart pieChart = view.findViewById(R.id.pieChart);
             ArrayList<PieEntry> entries = new ArrayList<>();
             //get emergency types from firestore
@@ -82,20 +87,19 @@ public class StatsFragment extends Fragment {
                         if (task.isSuccessful()) {
                             emergenciesList = new ArrayList<>();
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                emergenciesList.add(document.getString("Name"));
+                                emergenciesList.add(Emergency.documentToEmergency(document));
                             }
-                            // Iterate over each type of emergency
+                            // Iterate over each type of emergency to count how many incidents have been submitted
                             CollectionReference collection = firestore.collection("incidents");
-                            for (String emergency : emergenciesList) {
-                                Query query = collection.whereEqualTo("emergencyType", emergency);
+                            for (Emergency emergency : emergenciesList) {
+                                Query query = collection.whereEqualTo("emergencyType", emergency.getName());
                                 AggregateQuery countQuery = query.count();
                                 countQuery.get(AggregateSource.SERVER).addOnCompleteListener(innerTask -> {
                                     if (innerTask.isSuccessful()) {
                                         // Count fetched successfully
                                         AggregateQuerySnapshot snapshot = innerTask.getResult();
-                                        Log.d(TAG, "Count: " + snapshot.getCount());
                                         long count = snapshot.getCount();
-                                        entries.add(new PieEntry(count, emergency));
+                                        entries.add(new PieEntry(count, Translator.getNameLocale(requireContext(),emergency)));
                                         // Update the chart when all counts are fetched
                                         if (entries.size() == emergenciesList.size()) {
                                             setUpPieChart(entries, pieChart);
@@ -109,7 +113,9 @@ public class StatsFragment extends Fragment {
                             Log.w(TAG, "Error getting emergency types.", task.getException());
                         }
                     });
+
             // Stats for incidents reported per month - Bar Chart set up
+
             loadIncidentsMonth();
             // Stats for total number of incidents
             Query query = firestore.collection("incidents");
@@ -188,7 +194,7 @@ public class StatsFragment extends Fragment {
             labels.add(monthName);
         }
 
-        BarDataSet dataSet = new BarDataSet(entries, "Number of Incidents");
+        BarDataSet dataSet = new BarDataSet(entries, getResources().getString(R.string.number_of_incidents));
         dataSet.setColors(ColorTemplate.PASTEL_COLORS);
 
         BarData data = new BarData(dataSet);

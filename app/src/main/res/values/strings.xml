@@ -57,4 +57,5 @@
     <string name="new_emergency_incidents_in_your_area">new emergency incidents in your area!</string>
     <string name="signed_up_successful">The registration process is completed successfully!</string>
     <string name="no_internet">There is no internet connection</string>
+    <string name="number_of_incidents">Number of Incidents</string>
 </resources>

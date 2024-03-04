@@ -57,4 +57,5 @@
     <string name="new_emergency_incidents_in_your_area">νέα περιστατικά έκτακτης ανάγκης στην περιοχή σας !</string>
     <string name="signed_up_successful">Η εγγραφή σας ολοκληρώθηκε επιτυχώς!</string>
     <string name="no_internet">Δεν υπάρχει σύνδεση στο διαδίκτυο</string>
+    <string name="number_of_incidents">Αριθμός περιστατικών</string>
 </resources>
